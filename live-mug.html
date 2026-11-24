@@ -291,16 +291,23 @@ const qr=new Image();qr.src='qr_mug.png';const qrb=new Image();qrb.src='qr_blank
 let photo=new Image();photo.src='logo.png';let isLogo=true;let view='front';
 let useLogo=false,useSite=false;
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+function wrapPhoto(c,img,W,H,cx){const iw=img.naturalWidth,ih=img.naturalHeight;
+  const sm=document.createElement('canvas');sm.width=48;sm.height=Math.max(8,Math.round(48*H/W));const sx=sm.getContext('2d');
+  const k=Math.max(sm.width/iw,sm.height/ih)*1.15;sx.drawImage(img,(sm.width-iw*k)/2,(sm.height-ih*k)/2,iw*k,ih*k);
+  c.save();c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(sm,0,0,W,H);c.fillStyle='rgba(17,34,80,.25)';c.fillRect(0,0,W,H);c.restore();
+  const S=H,m=Math.min(iw,ih),t=document.createElement('canvas');t.width=t.height=S;const tx=t.getContext('2d');
+  tx.drawImage(img,(iw-m)/2,(ih-m)/2,m,m,0,0,S,S);const e=Math.round(S*.085);tx.globalCompositeOperation='destination-in';
+  const g=tx.createLinearGradient(0,0,S,0);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(e/S,'#000');g.addColorStop(1-e/S,'#000');g.addColorStop(1,'rgba(0,0,0,0)');
+  tx.fillStyle=g;tx.fillRect(0,0,S,S);c.drawImage(t,cx-S/2,0);}
 function drawPrint(){
   pc.fillStyle='#fff';pc.fillRect(0,0,PW,PH);
   const S=405,cx=637,cy=PH/2;
   if(photo.complete&&photo.naturalWidth){
     if(isLogo){pc.drawImage(photo,cx-S/2,cy-S/2,S,S);}
-    else{const iw=photo.naturalWidth,ih=photo.naturalHeight,s=Math.min(iw,ih);
-      pc.save();rr(pc,cx-S/2,cy-S/2,S,S,22);pc.clip();
-      pc.drawImage(photo,(iw-s)/2,(ih-s)/2,s,s,cx-S/2,cy-S/2,S,S);pc.restore();}
+    else{wrapPhoto(pc,photo,PW,PH,cx);}
   }
   const q=190,qx=1135-q/2,qy=245;
+  if(!isLogo){pc.fillStyle='#fff';rr(pc,qx-15,qy-15,q+30,q+60,20);pc.fill();}
   const useB=useLogo&&blogo;const Q=useB?qrb:qr;
   if(Q.complete&&Q.naturalWidth)pc.drawImage(Q,qx,qy,q,q);
   if(useB){const r=q*0.15;pc.save();pc.fillStyle='#fff';pc.beginPath();pc.arc(qx+q/2,qy+q/2,r+5,0,7);pc.fill();pc.beginPath();pc.arc(qx+q/2,qy+q/2,r,0,7);pc.clip();
