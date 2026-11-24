@@ -42,12 +42,12 @@ html:not(#_) .glm{--navy:#0B1530;--royal:#112250;--sapphire:#3C507D;--gold:#E0C5
         <label class="drop" id="d2"><input type="file" id="video" accept="video/*"><span class="th" id="t2"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="3"/><path d="m16 10 6-3v10l-6-3"/></svg></span><span><b id="n2">Choose a video</b><small>Up to 60 seconds · vertical or square · MP4 or MOV</small></span></label>
         <div class="err" id="e2"></div></div>
       <div class="card" id="c4"><h3><span class="n">3</span>Make the QR yours<span class="ok">✓ Added</span></h3>
-        <label class="sw"><input type="checkbox" id="bizLogo"><span class="tr"></span><span><b>Your logo in the QR <span class="add notranslate" translate="no" data-keep>+$5</span></b><small>Your logo sits in the middle of the QR code</small></span></label>
+        <label class="sw"><input type="checkbox" id="bizLogo"><span class="tr"></span><span><b>Your logo in the QR <span class="add notranslate" translate="no" data-keep>+$2.50</span></b><small>Your logo sits in the middle of the QR code</small></span></label>
         <div id="logof" class="bizf">
           <label class="drop" id="d3"><input type="file" id="blogo" accept="image/*"><span class="th" id="t3"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M8 12h8M12 8v8"/></svg></span><span><b id="n3">Choose your logo</b><small>Square, at least 300 × 300 px · transparent PNG works best</small></span></label>
         </div>
         <div style="height:14px"></div>
-        <label class="sw"><input type="checkbox" id="bizSite"><span class="tr"></span><span><b>Your website under the QR <span class="add notranslate" translate="no" data-keep>+$5</span></b><small>Printed in small letters right under the code</small></span></label>
+        <label class="sw"><input type="checkbox" id="bizSite"><span class="tr"></span><span><b>Your website under the QR <span class="add notranslate" translate="no" data-keep>+$2.50</span></b><small>Printed in small letters right under the code</small></span></label>
         <div id="sitef" class="bizf">
           <label class="fld"><span>Website</span><input type="text" id="bsite" maxlength="32" placeholder="www.yourbusiness.com (up to 32 characters)" autocomplete="url" inputmode="url"></label>
         </div>
@@ -204,7 +204,7 @@ $('video').addEventListener('change',e=>{const f=e.target.files[0];$('e2').style
     $('n2').textContent=t('{n} sec video added').replace('{n}',Math.round(v.duration));$('c2').classList.add('done');};
   v.src=url;});
 function total(){const n=document.querySelector('input[name=q]:checked').value==='2'?2:1;
-  const add=(useLogo?5:0)+(useSite?5:0),ed=$('edit').checked?9.99:0;const f=v=>'$'+v.toFixed(2);
+  const add=(useLogo?2.5:0)+(useSite?2.5:0),ed=$('edit').checked?9.99:0;const f=v=>'$'+v.toFixed(2);
   $('p1').textContent=f(34.99+add+ed);$('p2').textContent=f(59.99+add*2+ed);
   const t=(n===2?59.99:34.99)+add*n+ed;$('totv').textContent='$'+t.toFixed(2);}
 document.querySelectorAll('input[name=q]').forEach(r=>r.addEventListener('change',total));
