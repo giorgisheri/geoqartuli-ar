@@ -341,7 +341,7 @@ $('photo').addEventListener('change',e=>{const f=e.target.files[0];$('e1').style
   const url=URL.createObjectURL(f);const im=new Image();
   im.onload=()=>{if(Math.min(im.naturalWidth,im.naturalHeight)<800){$('e1').textContent=t('This photo is small and may print blurry. A larger photo is better.');$('e1').style.display='block';}
     photo=im;isLogo=false;hasPhoto=true;setView('front');
-    $('t1').innerHTML='';const t=new Image();t.src=url;t.alt='';$('t1').appendChild(t);
+    $('t1').innerHTML='';const th=new Image();th.src=url;th.alt='';$('t1').appendChild(th);
     $('n1').textContent=f.name.length>28?f.name.slice(0,25)+'…':f.name;$('c1').classList.add('done');};
   im.src=url;});
 $('video').addEventListener('change',e=>{const f=e.target.files[0];$('e2').style.display='none';if(!f)return;
@@ -363,7 +363,7 @@ $('bizSite').addEventListener('change',e=>{useSite=e.target.checked;$('sitef').c
 dnd($('d3'),$('blogo'));
 $('blogo').addEventListener('change',e=>{const f=e.target.files[0];$('e4').style.display='none';if(!f)return;
   if(!f.type.startsWith('image/')){$('e4').textContent=t('Please choose an image file.');$('e4').style.display='block';return;}
-  const url=URL.createObjectURL(f);const im=new Image();im.onload=()=>{blogo=im;$('t3').innerHTML='';const t=new Image();t.src=url;t.alt='';$('t3').appendChild(t);
+  const url=URL.createObjectURL(f);const im=new Image();im.onload=()=>{blogo=im;$('t3').innerHTML='';const th=new Image();th.src=url;th.alt='';$('t3').appendChild(th);
   $('n3').textContent=f.name.length>28?f.name.slice(0,25)+'…':f.name;bizUI();setView('back');};im.src=url;});
 $('bsite').addEventListener('input',()=>{bizUI();if(view!=='back')setView('back');else render();});
 $('gift').addEventListener('change',e=>{$('giftf').classList.toggle('on',e.target.checked);if(e.target.checked)$('gName').focus();});
@@ -378,6 +378,9 @@ $('buy').onclick=()=>{$('e3').style.display='none';
   if(!hasPhoto||!hasVideo){$('e3').textContent=t(!hasPhoto?'Add your photo first.':'Add your video first.');$('e3').style.display='block';return;}
   const email=$('email').value.trim();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){$('e3').textContent=t('Add your email so we can send your mug link.');$('e3').style.display='block';$('email').focus();return;}
   placeOrder(email);};
+function syncForm(){useLogo=$('bizLogo').checked;useSite=$('bizSite').checked;$('logof').classList.toggle('on',useLogo);$('sitef').classList.toggle('on',useSite);$('giftf').classList.toggle('on',$('gift').checked);
+  ['photo','video','blogo'].forEach(id=>{if($(id).files&&$(id).files.length)$(id).dispatchEvent(new Event('change'));});total();bizUI();render();}
+syncForm();window.addEventListener('pageshow',syncForm);
 const VARIANTS={"1": "68092460892227", "1E": "68092460924995", "1S": "68092460957763", "1SE": "68092460990531", "1L": "68092461023299", "1LE": "68092461056067", "1LS": "68092461088835", "1LSE": "68092461121603", "2": "68092461154371", "2E": "68092461187139", "2S": "68092461219907", "2SE": "68092461252675", "2L": "68092461285443", "2LE": "68092461318211", "2LS": "68092461350979", "2LSE": "68092461383747"};const SHOP='https://shop.geoqartuli.com';const API='https://geoqartuli.com/wp-json/geoq/v1/livemug';const LAUNCHED=false;
 function prog(p,txt){$('prog').classList.add('on');$('pfill').style.width=Math.round(p*100)+'%';if(txt)$('ptext').textContent=txt;}
 function squarePhoto(size){const c=document.createElement('canvas');c.width=c.height=size;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,size,size);const iw=photo.naturalWidth,ih=photo.naturalHeight,m=Math.min(iw,ih);x.drawImage(photo,(iw-m)/2,(ih-m)/2,m,m,0,0,size,size);return c;}
