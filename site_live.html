@@ -306,18 +306,18 @@ function drawPrint(){
     if(isLogo){pc.drawImage(photo,cx-S/2,cy-S/2,S,S);}
     else{wrapPhoto(pc,photo,PW,PH,cx);}
   }
-  const q=190,qx=1135-q/2,qy=245;
-  if(!isLogo){pc.fillStyle='#fff';rr(pc,qx-15,qy-15,q+30,q+60,20);pc.fill();}
+  const q=150,QX=1170,qx=QX-q/2,qy=282;
+  if(!isLogo){pc.fillStyle='#fff';rr(pc,qx-12,qy-12,q+24,q+48,16);pc.fill();}
   const useB=useLogo&&blogo;const Q=useB?qrb:qr;
   if(Q.complete&&Q.naturalWidth)pc.drawImage(Q,qx,qy,q,q);
   if(useB){const r=q*0.15;pc.save();pc.fillStyle='#fff';pc.beginPath();pc.arc(qx+q/2,qy+q/2,r+5,0,7);pc.fill();pc.beginPath();pc.arc(qx+q/2,qy+q/2,r,0,7);pc.clip();
     const iw=blogo.naturalWidth,ih=blogo.naturalHeight,sc=Math.max(2*r/iw,2*r/ih);pc.drawImage(blogo,qx+q/2-iw*sc/2,qy+q/2-ih*sc/2,iw*sc,ih*sc);pc.restore();}
-  pc.fillStyle='#112250';pc.font='500 17px Inter,system-ui';pc.textAlign='center';pc.fillText(useSite&&$('bsite').value.trim()?$('bsite').value.trim():'www.geoqartuli.com',1135,qy+q+28);
+  const tx=useSite&&$('bsite').value.trim()?$('bsite').value.trim():'www.geoqartuli.com';let fs=14;pc.font='500 '+fs+'px Inter,system-ui';while(fs>8&&pc.measureText(tx).width>q+16){fs-=.5;pc.font='500 '+fs+'px Inter,system-ui';}pc.fillStyle='#112250';pc.textAlign='center';pc.fillText(tx,QX,qy+q+24);
 }
 function render(){
   drawPrint();
   const W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);
-  const BW=470,BH=540,x0=(W-BW)/2-20,y0=120,center=view==='front'?637:1135;
+  const BW=470,BH=540,x0=(W-BW)/2-20,y0=120,center=view==='front'?637:1170;
   ctx.save();ctx.fillStyle='rgba(0,0,0,.38)';ctx.filter='blur(22px)';ctx.beginPath();ctx.ellipse(W/2,y0+BH+18,BW*.56,34,0,0,7);ctx.fill();ctx.restore();
   const hx=x0+BW-60,hy=y0+130;
   if(view==='back'){ctx.save();ctx.lineWidth=54;ctx.strokeStyle='#CFCAC3';rr(ctx,hx,hy,200,290,96);ctx.stroke();ctx.lineWidth=34;ctx.strokeStyle='#F7F6F3';rr(ctx,hx+8,hy+8,184,274,88);ctx.stroke();ctx.restore();}
