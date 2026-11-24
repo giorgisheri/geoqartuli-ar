@@ -432,7 +432,7 @@ async function placeOrder(email){
     const fd=new FormData();
     fd.append('photo',await blobOf(squarePhoto(Math.min(2400,Math.max(1000,Math.min(photo.naturalWidth,photo.naturalHeight)))),'image/jpeg',.95),'photo.jpg');
     fd.append('video',video,'video.mp4');fd.append('mind',mind,'target.mind');
-    if(useLogo&&blogo){const c=document.createElement('canvas');const s=Math.min(1000,Math.max(blogo.naturalWidth,blogo.naturalHeight));c.width=c.height=s;const x=c.getContext('2d');const k=s/Math.max(blogo.naturalWidth,blogo.naturalHeight);x.drawImage(blogo,(s-blogo.naturalWidth*k)/2,(s-blogo.naturalHeight*k)/2,blogo.naturalWidth*k,blogo.naturalHeight*k);fd.append('logo',await blobOf(c,'image/png'),'logo.png');}
+    if(useLogo&&blogo){const c=document.createElement('canvas');const s=Math.min(1000,Math.max(blogo.naturalWidth,blogo.naturalHeight));c.width=c.height=s;const x=c.getContext('2d');const k=s/Math.max(blogo.naturalWidth,blogo.naturalHeight);x.drawImage(blogo,(s-blogo.naturalWidth*k)/2,(s-blogo.naturalHeight*k)/2,blogo.naturalWidth*k,blogo.naturalHeight*k);fd.append('logo',await blobOf(c,'image/png'),'brand-logo.png');}
     fd.append('email',email);fd.append('agree','1');fd.append('lang',LANG);
     fd.append('qty',document.querySelector('input[name=q]:checked').value);fd.append('edit',$('edit').checked?'1':'0');
     fd.append('site',useSite?$('bsite').value.trim():'');
