@@ -66,10 +66,10 @@ header .btn{min-height:40px;padding:0 18px;font-size:14px}
 .builder{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(18px,3vw,36px);align-items:start}
 .stage{position:sticky;top:84px;background:radial-gradient(80% 70% at 50% 40%,#1E3A82,var(--royal) 55%,var(--navy));border-radius:28px;padding:22px 18px 18px;color:#fff;overflow:hidden}
 .stage canvas{width:100%;height:auto;display:block}
-.stage .cap{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#AEBAD4;padding:4px 6px 0}
+.stage .cap{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;font-size:13px;color:#AEBAD4;padding:4px 6px 0}
 .stage .cap b{color:var(--gold);font-weight:600}
 .views{display:flex;gap:8px}
-.views button{border:1px solid rgba(224,197,143,.4);background:transparent;color:#fff;border-radius:999px;padding:6px 12px;font:600 12px Inter;cursor:pointer}
+.views button{white-space:nowrap;border:1px solid rgba(224,197,143,.4);background:transparent;color:#fff;border-radius:999px;padding:6px 12px;font:600 12px Inter;cursor:pointer}
 .views button[aria-pressed=true]{background:var(--gold);color:var(--royal);border-color:var(--gold)}
 .form{display:flex;flex-direction:column;gap:14px}
 .card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:20px}
@@ -145,13 +145,13 @@ footer b{color:var(--gold);letter-spacing:.06em}
 </head>
 <body>
 <header><div class="wrap">
-  <a class="brand" href="#top"><img src="https://giorgisheri.github.io/geoqartuli-ar/logo.png" alt="">GeoQartuli</a>
+  <a class="brand notranslate" translate="no" href="#top"><img src="https://giorgisheri.github.io/geoqartuli-ar/logo.png" alt="">GeoQartuli</a>
   <a class="btn btn-gold" href="#create">Create yours</a>
 </div></header>
 
 <section class="hero" id="top"><div class="wrap">
   <div>
-    <div class="kicker">GeoQartuli Live Mug</div>
+    <div class="kicker notranslate" translate="no">GeoQartuli Live Mug</div>
     <h1>A mug that <em>plays</em> your video</h1>
     <p class="lead">Print a photo, add a video message. When they point their phone at the mug, the photo comes alive — with sound.</p>
     <div class="price"><b>$34.99</b><span>Free shipping · gift box included</span></div>
@@ -173,11 +173,11 @@ footer b{color:var(--gold);letter-spacing:.06em}
 </div></section>
 
 <section class="band" id="create"><div class="wrap">
-  <div class="head"><div class="kicker">Create yours</div><h2>See your mug as you make it</h2><p>Upload a photo and the preview updates instantly.</p></div>
+  <div class="head"><div class="kicker">Create yours</div><h2>Design your mug and see it live</h2><p>Upload a photo and the preview updates instantly.</p></div>
   <div class="builder">
     <div class="stage">
       <canvas id="mug" width="900" height="760" aria-label="Mug preview"></canvas>
-      <div class="cap"><span><b>Preview</b> · 11 oz ceramic</span><div class="views"><button id="vFront" aria-pressed="true">Photo side</button><button id="vBack" aria-pressed="false">QR side</button></div></div>
+      <div class="cap"><span><b>Preview</b> · 11 oz ceramic</span><div class="views"><button id="vFront" aria-pressed="true">Front</button><button id="vBack" aria-pressed="false">Back</button></div></div>
     </div>
     <div class="form">
       <div class="card" id="c1"><h3><span class="n">1</span>Your photo<span class="ok">✓ Added</span></h3>
@@ -258,7 +258,7 @@ footer b{color:var(--gold);letter-spacing:.06em}
   </div>
 </div></section>
 
-<footer><b>www.geoqartuli.com</b><br>GeoQartuli Live Mug</footer>
+<footer><b class="notranslate" translate="no">www.geoqartuli.com</b><br><span class="notranslate" translate="no">GeoQartuli Live Mug</span></footer>
 
 <div class="toast" id="toast" role="status"></div>
 
