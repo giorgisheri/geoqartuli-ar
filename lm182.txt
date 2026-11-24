@@ -59,6 +59,20 @@ function geoq_lm_url( $att_id ) {
 	return $att_id ? wp_get_attachment_url( (int) $att_id ) : '';
 }
 
+// Same-origin copy (needed for the AR camera and canvas, which require CORS); falls back to the media URL.
+function geoq_lm_local( $att_id ) {
+	$att_id = (int) $att_id;
+	if ( ! $att_id ) {
+		return '';
+	}
+	$rel  = (string) get_post_meta( $att_id, '_wp_attached_file', true );
+	$file = $rel ? trailingslashit( WP_CONTENT_DIR ) . 'uploads/' . $rel : '';
+	if ( $file && file_exists( $file ) ) {
+		return content_url( 'uploads/' . $rel );
+	}
+	return geoq_lm_url( $att_id );
+}
+
 // Allow the AR target file type only while our endpoint is saving files.
 $GLOBALS['geoq_lm_saving'] = false;
 add_filter( 'upload_mimes', function ( $m ) {
@@ -260,9 +274,9 @@ add_action( 'template_redirect', function () {
 	$base = 'https://giorgisheri.github.io/geoqartuli-ar/';
 	$photo = wp_get_attachment_image_url( (int) get_post_meta( $pid, '_lm_photo', true ), 'medium' );
 	$swap = array(
-		$base . 'logo.mind' => geoq_lm_url( get_post_meta( $pid, '_lm_mind', true ) ),
-		$base . 'promo.mp4' => geoq_lm_url( get_post_meta( $pid, '_lm_video', true ) ),
-		$base . 'full.mp4'  => geoq_lm_url( get_post_meta( $pid, '_lm_video', true ) ),
+		$base . 'logo.mind' => geoq_lm_local( get_post_meta( $pid, '_lm_mind', true ) ),
+		$base . 'promo.mp4' => geoq_lm_local( get_post_meta( $pid, '_lm_video', true ) ),
+		$base . 'full.mp4'  => geoq_lm_local( get_post_meta( $pid, '_lm_video', true ) ),
 		$base . 'logo.png'  => $photo ? $photo : geoq_lm_url( get_post_meta( $pid, '_lm_photo', true ) ),
 	);
 	$swap['</head>'] = '<script>window.GQ={shape:"square",target:"photo"};</script></head>';
@@ -321,8 +335,8 @@ function geoq_lm_box( $post ) {
 	$pid   = $post->ID;
 	$code  = get_post_meta( $pid, '_lm_code', true );
 	$video = geoq_lm_url( get_post_meta( $pid, '_lm_video', true ) );
-	$photo = geoq_lm_url( get_post_meta( $pid, '_lm_photo', true ) );
-	$logo  = geoq_lm_url( get_post_meta( $pid, '_lm_logo_id', true ) );
+	$photo = geoq_lm_local( get_post_meta( $pid, '_lm_photo', true ) );
+	$logo  = geoq_lm_local( get_post_meta( $pid, '_lm_logo_id', true ) );
 	$site  = (string) get_post_meta( $pid, '_lm_site', true );
 	$gift  = get_post_meta( $pid, '_lm_gift', true );
 	$st    = get_post_meta( $pid, '_lm_status', true );
