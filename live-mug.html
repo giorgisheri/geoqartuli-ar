@@ -185,7 +185,10 @@ footer b{color:var(--gold);letter-spacing:.06em}
           <label class="fld"><span>Website under the QR</span><input type="text" id="bsite" maxlength="32" placeholder="www.yourbusiness.com" autocomplete="url" inputmode="url"></label>
           <div class="err" id="e4"></div>
         </div></div>
-      <div class="card"><h3><span class="n">4</span>How many?</h3>
+      <div class="card"><h3><span class="n">4</span>Keep it editable</h3>
+        <label class="sw"><input type="checkbox" id="edit"><span class="tr"></span><span><b>Full editing, any time · +$9.99</b><small>Change the video whenever you like — a new message for every birthday. Business mugs can also change where the QR leads. One-time fee, no subscription.</small></span></label>
+      </div>
+      <div class="card"><h3><span class="n">5</span>How many?</h3>
         <div class="opts">
           <div class="opt"><input type="radio" name="q" id="q1" value="1" checked><label for="q1"><b>1 mug</b><span>$34.99</span><small>Gift box included</small></label></div>
           <div class="opt"><input type="radio" name="q" id="q2" value="2"><label for="q2"><b>2 mugs <em>Save $10</em></b><span>$59.99</span><small>One for each of you</small></label></div>
@@ -211,6 +214,7 @@ footer b{color:var(--gold);letter-spacing:.06em}
     <details><summary>Which phones does it work on?</summary><p>Any recent iPhone or Android phone with a camera and a browser.</p></details>
     <details><summary>How long can the video be?</summary><p>Up to 60 seconds. We compress it so it loads quickly on any connection.</p></details>
     <details><summary>When will it arrive?</summary><p>Mugs are printed in the USA and usually arrive 3–5 business days after you order.</p></details>
+    <details><summary>Can I change the video later?</summary><p>Yes, with Full editing. Upload a new video any time and the same mug plays it — no reprint needed. The printed photo stays the same.</p></details>
     <details><summary>Is my video private?</summary><p>Each mug gets its own private link that nobody can guess. Only people with the mug can open it.</p></details>
   </div>
 </div></section>
@@ -291,8 +295,9 @@ $('video').addEventListener('change',e=>{const f=e.target.files[0];$('e2').style
     $('n2').textContent=Math.round(v.duration)+' sec video added';$('c2').classList.add('done');};
   v.src=url;});
 function total(){const n=document.querySelector('input[name=q]:checked').value==='2'?2:1;
-  const base=n===2?59.99:34.99;const t=base+(biz?5*n:0);$('tot').firstChild.nodeValue='$'+t.toFixed(2);}
+  const base=n===2?59.99:34.99;const t=base+(biz?5*n:0)+($('edit').checked?9.99:0);$('tot').firstChild.nodeValue='$'+t.toFixed(2);}
 document.querySelectorAll('input[name=q]').forEach(r=>r.addEventListener('change',total));
+$('edit').addEventListener('change',total);
 $('biz').addEventListener('change',e=>{biz=e.target.checked;$('bizf').classList.toggle('on',biz);total();if(biz)setView('back');else render();});
 dnd($('d3'),$('blogo'));
 $('blogo').addEventListener('change',e=>{const f=e.target.files[0];$('e4').style.display='none';if(!f)return;
