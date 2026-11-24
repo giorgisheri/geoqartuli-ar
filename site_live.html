@@ -145,7 +145,7 @@ footer b{color:var(--gold);letter-spacing:.06em}
 </head>
 <body>
 <header><div class="wrap">
-  <a class="brand notranslate" translate="no" data-keep href="#top"><img src="https://giorgisheri.github.io/geoqartuli-ar/logo.png" alt="">GeoQartuli</a>
+  <a class="brand notranslate" translate="no" data-keep href="#top"><img src="https://giorgisheri.github.io/geoqartuli-ar/logo.png?v=3" alt="">GeoQartuli</a>
   <a class="btn btn-gold" href="#create">Create yours</a>
 </div></header>
 
@@ -159,7 +159,7 @@ footer b{color:var(--gold);letter-spacing:.06em}
     <div class="trust"><span>No app needed</span><span>Ships in 3–5 days</span><span>Made in the USA</span></div>
   </div>
   <div class="hero-art">
-    <img src="https://giorgisheri.github.io/geoqartuli-ar/mug_hero.webp" alt="GeoQartuli mug with logo and QR code" width="1290" height="878">
+    <img src="https://giorgisheri.github.io/geoqartuli-ar/mug_hero.webp?v=3" alt="GeoQartuli mug with logo and QR code" width="1290" height="878">
   </div>
 </div></section>
 
@@ -286,8 +286,8 @@ const cv=$('mug'),ctx=cv.getContext('2d');
 const PW=1275,PH=525,CIRC=Math.round(PW*10.2/8.5),OFF=Math.round((CIRC-PW)/2);
 const print=document.createElement('canvas');print.width=PW;print.height=PH;
 const pc=print.getContext('2d');
-const qr=new Image();qr.src='https://giorgisheri.github.io/geoqartuli-ar/qr_mug.png';const qrb=new Image();qrb.src='https://giorgisheri.github.io/geoqartuli-ar/qr_blank.png';let blogo=null;
-let photo=new Image();photo.src='https://giorgisheri.github.io/geoqartuli-ar/logo.png';let isLogo=true;let view='front';
+const qr=new Image();qr.src='https://giorgisheri.github.io/geoqartuli-ar/qr_mug.png?v=3';const qrb=new Image();qrb.src='https://giorgisheri.github.io/geoqartuli-ar/qr_blank.png?v=3';let blogo=null;
+let photo=new Image();photo.src='https://giorgisheri.github.io/geoqartuli-ar/logo.png?v=3';let isLogo=true;let view='front';
 let useLogo=false,useSite=false;
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
 function drawPrint(){
