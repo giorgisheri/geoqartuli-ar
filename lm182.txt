@@ -95,6 +95,43 @@ add_filter( 'wp_check_filetype_and_ext', function ( $data, $file, $filename ) {
 	return $data;
 }, 10, 3 );
 
+// Live Mug files go to their own folder (uploads/live-mugs/YYYY/MM), on hosting and on R2.
+add_filter( 'upload_dir', function ( $d ) {
+	if ( empty( $GLOBALS['geoq_lm_saving'] ) ) {
+		return $d;
+	}
+	$sub          = '/live-mugs' . gmdate( '/Y/m' );
+	$d['path']    = $d['basedir'] . $sub;
+	$d['url']     = $d['baseurl'] . $sub;
+	$d['subdir']  = $sub;
+	return $d;
+} );
+
+// Keep Live Mug files out of the Media Library (they are shown under Live Mugs instead).
+function geoq_lm_hide_q( $q ) {
+	$mq   = isset( $q['meta_query'] ) && is_array( $q['meta_query'] ) ? $q['meta_query'] : array();
+	$mq[] = array( 'key' => '_geoq_lm_file', 'compare' => 'NOT EXISTS' );
+	$q['meta_query'] = $mq;
+	$parents = get_posts( array( 'post_type' => 'geoq_livemug', 'post_status' => 'any', 'posts_per_page' => -1, 'fields' => 'ids' ) );
+	if ( $parents ) {
+		$q['post_parent__not_in'] = array_merge( isset( $q['post_parent__not_in'] ) ? (array) $q['post_parent__not_in'] : array(), $parents );
+	}
+	return $q;
+}
+add_filter( 'ajax_query_attachments_args', 'geoq_lm_hide_q' );
+add_action( 'pre_get_posts', function ( $query ) {
+	if ( ! is_admin() || ! $query->is_main_query() ) {
+		return;
+	}
+	global $pagenow;
+	if ( $pagenow !== 'upload.php' ) {
+		return;
+	}
+	foreach ( geoq_lm_hide_q( array( 'meta_query' => $query->get( 'meta_query' ), 'post_parent__not_in' => $query->get( 'post_parent__not_in' ) ) ) as $k => $v ) {
+		$query->set( $k, $v );
+	}
+} );
+
 function geoq_lm_save_file( $key, $post_id, $types, $max_mb ) {
 	if ( empty( $_FILES[ $key ] ) || ! empty( $_FILES[ $key ]['error'] ) ) {
 		return 0;
@@ -118,6 +155,9 @@ function geoq_lm_save_file( $key, $post_id, $types, $max_mb ) {
 	$GLOBALS['geoq_lm_saving'] = true;
 	$id = media_handle_upload( $key, $post_id, array(), array( 'test_form' => false ) );
 	$GLOBALS['geoq_lm_saving'] = false;
+	if ( ! is_wp_error( $id ) ) {
+		update_post_meta( $id, '_geoq_lm_file', 1 );
+	}
 	return $id;
 }
 
