@@ -79,6 +79,16 @@ import * as THREE from 'three';
 import { MindARThree } from 'mindar-image-three';
 const $=id=>document.getElementById(id);
 const vid=$('vid');
+const GQ=Object.assign({shape:'circle',target:'logo'},window.GQ||{});
+const L=(()=>{const q=new URLSearchParams(location.search).get('lang');const n=(q||navigator.language||'en').slice(0,2).toLowerCase();return ['ka','ru','es'].includes(n)?n:'en';})();
+const TR={ka:{'Bring it to life':'გააცოცხლე','▶ Tap anywhere':'▶ შეეხე ეკრანს','Just watch the video':'უბრალოდ ვიდეოს ნახვა','Point your camera at the logo':'მიუშვირე კამერა ლოგოს','Point your camera at the photo':'მიუშვირე კამერა ფოტოს','Download the app for more':'მეტისთვის ჩამოწერე აპი','Get the app':'აპის ჩამოწერა','🔊 Tap for sound':'🔊 შეეხე ხმისთვის','Close':'დახურვა','Starting camera…':'კამერა ირთვება…','Camera is blocked. Tap again and choose Allow.':'კამერა დაბლოკილია. ისევ შეეხე და აირჩიე Allow.'},
+ru:{'Bring it to life':'Оживите это','▶ Tap anywhere':'▶ Коснитесь экрана','Just watch the video':'Просто посмотреть видео','Point your camera at the logo':'Наведите камеру на логотип','Point your camera at the photo':'Наведите камеру на фото','Download the app for more':'Больше — в приложении','Get the app':'Приложение','🔊 Tap for sound':'🔊 Включить звук','Close':'Закрыть','Starting camera…':'Включаем камеру…','Camera is blocked. Tap again and choose Allow.':'Камера заблокирована. Коснитесь ещё раз и выберите «Разрешить».'},
+es:{'Bring it to life':'Dale vida','▶ Tap anywhere':'▶ Toca la pantalla','Just watch the video':'Solo ver el video','Point your camera at the logo':'Apunta la cámara al logo','Point your camera at the photo':'Apunta la cámara a la foto','Download the app for more':'Descarga la app para más','Get the app':'Descargar app','🔊 Tap for sound':'🔊 Toca para el sonido','Close':'Cerrar','Starting camera…':'Abriendo la cámara…','Camera is blocked. Tap again and choose Allow.':'La cámara está bloqueada. Toca otra vez y elige Permitir.'}};
+const t=k=>(TR[L]&&TR[L][k])||k;
+const HINT=GQ.target==='photo'?'Point your camera at the photo':'Point your camera at the logo';
+document.documentElement.lang=L;
+document.querySelector('#start h1').textContent=t('Bring it to life');document.querySelector('#start .tap').textContent=t('▶ Tap anywhere');
+$('watch').textContent=t('Just watch the video');$('hintText').textContent=t(HINT);$('getapp').textContent=t('Get the app');$('sound').textContent=t('🔊 Tap for sound');$('closeF').textContent=t('Close');
 let mind=null,started=false,tapped=false;
 {const ios=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
  if(!ios)$('getapp').href='https://geoqartuli.com';}
@@ -92,15 +102,18 @@ async function playVid(){
   try{await vid.play();}catch(e){vid.muted=true;try{await vid.play();}catch(_){} $('sound').style.display='block';}
 }
 async function startAR(){
-  $('status').textContent='Starting camera…';
+  $('status').textContent=t('Starting camera…');
   try{
     if(!mind){
       mind=new MindARThree({container:$('ar'),imageTargetSrc:'https://giorgisheri.github.io/geoqartuli-ar/logo.mind',uiLoading:'no',uiScanning:'no',uiError:'no',filterMinCF:0.0001,filterBeta:0.001});
       const tex=new THREE.VideoTexture(vid);tex.colorSpace=THREE.SRGBColorSpace;
-      const disc=new THREE.Mesh(new THREE.CircleGeometry(0.49,96),new THREE.MeshBasicMaterial({map:tex}));
+      const fit=()=>{const w=vid.videoWidth,h=vid.videoHeight;if(!w||!h)return;const a=w/h;if(a>1){tex.repeat.set(1/a,1);tex.offset.set((1-1/a)/2,0);}else{tex.repeat.set(1,a);tex.offset.set(0,(1-a)/2);}};
+      vid.addEventListener('loadedmetadata',fit);fit();
+      let geo;if(GQ.shape==='square'){const r=0.055,sh=new THREE.Shape();sh.moveTo(r,0);sh.lineTo(1-r,0);sh.quadraticCurveTo(1,0,1,r);sh.lineTo(1,1-r);sh.quadraticCurveTo(1,1,1-r,1);sh.lineTo(r,1);sh.quadraticCurveTo(0,1,0,1-r);sh.lineTo(0,r);sh.quadraticCurveTo(0,0,r,0);geo=new THREE.ShapeGeometry(sh,24);geo.translate(-0.5,-0.5,0);}else{geo=new THREE.CircleGeometry(0.49,96);}
+      const disc=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex}));
       const anchor=mind.addAnchor(0);anchor.group.add(disc);
-      anchor.onTargetFound=()=>{playVid();$('frame').style.display='none';$('hintText').textContent='Download the app for more';};
-      anchor.onTargetLost=()=>{vid.pause();$('frame').style.display='flex';$('hintText').textContent='Point your camera at the logo';};
+      anchor.onTargetFound=()=>{playVid();$('frame').style.display='none';$('hintText').textContent=t('Download the app for more');};
+      anchor.onTargetLost=()=>{vid.pause();$('frame').style.display='flex';$('hintText').textContent=t(HINT);};
     }
     await mind.start();
     mind.renderer.setAnimationLoop(()=>mind.renderer.render(mind.scene,mind.camera));
@@ -108,7 +121,7 @@ async function startAR(){
     $('start').style.display='none';$('frame').style.display='flex';$('bar').style.display='flex';
   }catch(e){
     tapped=false;
-    $('status').textContent='Camera is blocked. Tap again and choose Allow.';
+    $('status').textContent=t('Camera is blocked. Tap again and choose Allow.');
   }
 }
 $('start').addEventListener('click',()=>{if(tapped)return;tapped=true;

@@ -163,7 +163,7 @@ function geoq_lm_create( WP_REST_Request $r ) {
 	}
 	$files = array(
 		'photo' => array( array( 'image/' ), 15 ),
-		'video' => array( array( 'video/' ), 95 ),
+		'video' => array( array( 'video/' ), 60 ),
 		'mind'  => array( array( 'application/octet-stream', '' ), 6 ),
 		'logo'  => array( array( 'image/' ), 6 ),
 	);
@@ -221,7 +221,7 @@ function geoq_lm_replace_video( WP_REST_Request $r ) {
 	if ( ! geoq_lm_rate_ok() ) {
 		return new WP_Error( 'slow_down', 'Too many uploads. Please try again later.', array( 'status' => 429 ) );
 	}
-	$id = geoq_lm_save_file( 'video', $pid, array( 'video/' ), 95 );
+	$id = geoq_lm_save_file( 'video', $pid, array( 'video/' ), 60 );
 	if ( is_wp_error( $id ) || ! $id ) {
 		return is_wp_error( $id ) ? $id : new WP_Error( 'upload', 'Upload failed.', array( 'status' => 500 ) );
 	}
@@ -265,6 +265,7 @@ add_action( 'template_redirect', function () {
 		$base . 'full.mp4'  => geoq_lm_url( get_post_meta( $pid, '_lm_video', true ) ),
 		$base . 'logo.png'  => $photo ? $photo : geoq_lm_url( get_post_meta( $pid, '_lm_photo', true ) ),
 	);
+	$swap['</head>'] = '<script>window.GQ={shape:"square",target:"photo"};</script></head>';
 	header( 'Content-Type: text/html; charset=utf-8' );
 	echo str_replace( array_keys( $swap ), array_values( $swap ), $html );
 	exit;
@@ -285,7 +286,7 @@ function geoq_lm_render_edit( $pid, $code ) {
 		echo '<h1>Editing not included</h1><p>Full editing was not added to this mug. Contact info@geoqartuli.com to unlock it.</p><a class="b" href="' . $live . '">Watch the current video</a>';
 	} else {
 		echo '<h1>Change your video</h1><p>Upload a new video (up to 60 seconds). The same mug will play it right away.</p><label><input type="file" id="v" accept="video/*"><span id="n">Choose a video</span></label><button id="go">Upload</button><div id="s"></div><p><a style="color:#E0C58F" href="' . $live . '">See the current video</a></p>';
-		echo '<script>const v=document.getElementById("v"),s=document.getElementById("s");v.onchange=()=>{document.getElementById("n").textContent=v.files[0]?v.files[0].name:"Choose a video"};document.getElementById("go").onclick=async()=>{if(!v.files[0]){s.textContent="Choose a video first.";return}const f=v.files[0];if(f.size>95*1048576){s.textContent="This video is too large. Please choose a shorter one.";return}s.textContent="Uploading…";const fd=new FormData();fd.append("video",f);fd.append("t","' . $token . '");try{const r=await fetch("' . $api . '",{method:"POST",body:fd});const j=await r.json();s.textContent=r.ok?"Done! Your mug now plays the new video.":(j.message||"Upload failed.")}catch(e){s.textContent="Upload failed. Please try again."}};</script>';
+		echo '<script>const v=document.getElementById("v"),s=document.getElementById("s");v.onchange=()=>{document.getElementById("n").textContent=v.files[0]?v.files[0].name:"Choose a video"};document.getElementById("go").onclick=async()=>{if(!v.files[0]){s.textContent="Choose a video first.";return}const f=v.files[0];if(f.size>60*1048576){s.textContent="This video is too large. Please choose a shorter one.";return}s.textContent="Uploading…";const fd=new FormData();fd.append("video",f);fd.append("t","' . $token . '");try{const r=await fetch("' . $api . '",{method:"POST",body:fd});const j=await r.json();s.textContent=r.ok?"Done! Your mug now plays the new video.":(j.message||"Upload failed.")}catch(e){s.textContent="Upload failed. Please try again."}};</script>';
 	}
 	echo '</div></body></html>';
 }
