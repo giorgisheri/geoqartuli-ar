@@ -107,6 +107,7 @@ header .btn{min-height:40px;padding:0 18px;font-size:14px}
 .sw input:checked+.tr::after{left:21px;background:var(--gold)}
 .sw input:focus-visible+.tr{outline:3px solid var(--gold);outline-offset:2px}
 .sw b{display:block;color:var(--royal);font-size:15px}.sw small{color:var(--muted);font-size:13px}
+.add{display:inline-block;font-size:12px;font-weight:700;color:var(--royal);background:var(--gold);border-radius:999px;padding:1px 8px;margin-left:4px;vertical-align:1px}
 .bizf{display:none;flex-direction:column;gap:12px;margin-top:14px}.bizf.on{display:flex}
 .fld span{display:block;font-size:13px;font-weight:600;color:var(--royal);margin-bottom:6px}
 .fld input{width:100%;height:48px;border:1.5px solid var(--line);border-radius:14px;padding:0 14px;font:16px Inter,system-ui;color:var(--ink);background:#fff}
@@ -178,13 +179,18 @@ footer b{color:var(--gold);letter-spacing:.06em}
       <div class="card" id="c2"><h3><span class="n">2</span>Your video<span class="ok">✓ Added</span></h3>
         <label class="drop" id="d2"><input type="file" id="video" accept="video/*"><span class="th" id="t2"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="3"/><path d="m16 10 6-3v10l-6-3"/></svg></span><span><b id="n2">Choose a video</b><small>Up to 60 seconds · vertical or square · MP4 or MOV</small></span></label>
         <div class="err" id="e2"></div></div>
-      <div class="card" id="c4"><h3><span class="n">3</span>For a business?<span class="ok">✓ Added</span></h3>
-        <label class="sw"><input type="checkbox" id="biz"><span class="tr"></span><span><b>Use my brand next to the QR</b><small>Your logo inside the QR and your website under it · +$5 per mug</small></span></label>
-        <div id="bizf" class="bizf">
+      <div class="card" id="c4"><h3><span class="n">3</span>Make the QR yours<span class="ok">✓ Added</span></h3>
+        <label class="sw"><input type="checkbox" id="bizLogo"><span class="tr"></span><span><b>Your logo in the QR <span class="add">+$5</span></b><small>Your logo sits in the middle of the QR code</small></span></label>
+        <div id="logof" class="bizf">
           <label class="drop" id="d3"><input type="file" id="blogo" accept="image/*"><span class="th" id="t3"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M8 12h8M12 8v8"/></svg></span><span><b id="n3">Choose your logo</b><small>Square, at least 300 × 300 px · transparent PNG works best</small></span></label>
-          <label class="fld"><span>Website under the QR</span><input type="text" id="bsite" maxlength="32" placeholder="www.yourbusiness.com (up to 32 characters)" autocomplete="url" inputmode="url"></label>
-          <div class="err" id="e4"></div>
-        </div></div>
+        </div>
+        <div style="height:14px"></div>
+        <label class="sw"><input type="checkbox" id="bizSite"><span class="tr"></span><span><b>Your website under the QR <span class="add">+$5</span></b><small>Printed in small letters right under the code</small></span></label>
+        <div id="sitef" class="bizf">
+          <label class="fld"><span>Website</span><input type="text" id="bsite" maxlength="32" placeholder="www.yourbusiness.com (up to 32 characters)" autocomplete="url" inputmode="url"></label>
+        </div>
+        <div class="err" id="e4"></div>
+      </div>
       <div class="card"><h3><span class="n">4</span>Keep it editable</h3>
         <label class="sw"><input type="checkbox" id="edit"><span class="tr"></span><span><b>Full editing, any time · +$9.99</b><small>Change the video whenever you like — a new message for every birthday. Business mugs can also change where the QR leads. One-time fee, no subscription.</small></span></label>
       </div>
@@ -232,7 +238,7 @@ const print=document.createElement('canvas');print.width=PW;print.height=PH;
 const pc=print.getContext('2d');
 const qr=new Image();qr.src='qr_mug.png';const qrb=new Image();qrb.src='qr_blank.png';let blogo=null;
 let photo=new Image();photo.src='logo.png';let isLogo=true;let view='front';
-let site='www.geoqartuli.com';let biz=false;
+let useLogo=false,useSite=false;
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
 function drawPrint(){
   pc.fillStyle='#fff';pc.fillRect(0,0,PW,PH);
@@ -244,11 +250,11 @@ function drawPrint(){
       pc.drawImage(photo,(iw-s)/2,(ih-s)/2,s,s,cx-S/2,cy-S/2,S,S);pc.restore();}
   }
   const q=190,qx=1135-q/2,qy=245;
-  const useB=biz&&blogo;const Q=useB?qrb:qr;
+  const useB=useLogo&&blogo;const Q=useB?qrb:qr;
   if(Q.complete&&Q.naturalWidth)pc.drawImage(Q,qx,qy,q,q);
   if(useB){const r=q*0.15;pc.save();pc.fillStyle='#fff';pc.beginPath();pc.arc(qx+q/2,qy+q/2,r+5,0,7);pc.fill();pc.beginPath();pc.arc(qx+q/2,qy+q/2,r,0,7);pc.clip();
     const iw=blogo.naturalWidth,ih=blogo.naturalHeight,sc=Math.max(2*r/iw,2*r/ih);pc.drawImage(blogo,qx+q/2-iw*sc/2,qy+q/2-ih*sc/2,iw*sc,ih*sc);pc.restore();}
-  pc.fillStyle='#112250';pc.font='500 17px Inter,system-ui';pc.textAlign='center';pc.fillText(biz&&$('bsite').value.trim()?$('bsite').value.trim():'www.geoqartuli.com',1135,qy+q+28);
+  pc.fillStyle='#112250';pc.font='500 17px Inter,system-ui';pc.textAlign='center';pc.fillText(useSite&&$('bsite').value.trim()?$('bsite').value.trim():'www.geoqartuli.com',1135,qy+q+28);
 }
 function render(){
   drawPrint();
@@ -295,18 +301,21 @@ $('video').addEventListener('change',e=>{const f=e.target.files[0];$('e2').style
     $('n2').textContent=Math.round(v.duration)+' sec video added';$('c2').classList.add('done');};
   v.src=url;});
 function total(){const n=document.querySelector('input[name=q]:checked').value==='2'?2:1;
-  const base=n===2?59.99:34.99;const t=base+(biz?5*n:0)+($('edit').checked?9.99:0);$('tot').firstChild.nodeValue='$'+t.toFixed(2);}
+  const base=n===2?59.99:34.99;const t=base+((useLogo?5:0)+(useSite?5:0))*n+($('edit').checked?9.99:0);$('tot').firstChild.nodeValue='$'+t.toFixed(2);}
 document.querySelectorAll('input[name=q]').forEach(r=>r.addEventListener('change',total));
 $('edit').addEventListener('change',total);
-$('biz').addEventListener('change',e=>{biz=e.target.checked;$('bizf').classList.toggle('on',biz);total();if(biz)setView('back');else render();});
+function bizUI(){$('c4').classList.toggle('done',(useLogo&&!!blogo)||(useSite&&!!$('bsite').value.trim()));}
+$('bizLogo').addEventListener('change',e=>{useLogo=e.target.checked;$('logof').classList.toggle('on',useLogo);total();bizUI();setView('back');});
+$('bizSite').addEventListener('change',e=>{useSite=e.target.checked;$('sitef').classList.toggle('on',useSite);total();bizUI();setView('back');if(useSite)$('bsite').focus();});
 dnd($('d3'),$('blogo'));
 $('blogo').addEventListener('change',e=>{const f=e.target.files[0];$('e4').style.display='none';if(!f)return;
   if(!f.type.startsWith('image/')){$('e4').textContent='Please choose an image file.';$('e4').style.display='block';return;}
   const url=URL.createObjectURL(f);const im=new Image();im.onload=()=>{blogo=im;$('t3').innerHTML='';const t=new Image();t.src=url;t.alt='';$('t3').appendChild(t);
-  $('n3').textContent=f.name.length>28?f.name.slice(0,25)+'…':f.name;$('c4').classList.add('done');setView('back');};im.src=url;});
-$('bsite').addEventListener('input',()=>{if(view!=='back')setView('back');else render();});
+  $('n3').textContent=f.name.length>28?f.name.slice(0,25)+'…':f.name;bizUI();setView('back');};im.src=url;});
+$('bsite').addEventListener('input',()=>{bizUI();if(view!=='back')setView('back');else render();});
 $('buy').onclick=()=>{$('e3').style.display='none';
-  if(biz&&(!blogo||!$('bsite').value.trim())){$('e3').textContent=!blogo?'Add your business logo, or turn off business branding.':'Add your website, or turn off business branding.';$('e3').style.display='block';return;}
+  if(useLogo&&!blogo){$('e3').textContent='Add your logo, or turn off “Your logo in the QR”.';$('e3').style.display='block';return;}
+  if(useSite&&!$('bsite').value.trim()){$('e3').textContent='Add your website, or turn off “Your website under the QR”.';$('e3').style.display='block';return;}
   if(!hasPhoto||!hasVideo){$('e3').textContent=!hasPhoto?'Add your photo first.':'Add your video first.';$('e3').style.display='block';return;}
   toast('Looks great! Checkout opens when the Live Mug launches.');};
 }
