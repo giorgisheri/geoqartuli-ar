@@ -65,15 +65,15 @@ function geoq_lm_local( $att_id ) {
 	if ( ! $att_id ) {
 		return '';
 	}
-	$url = geoq_lm_url( $att_id );
-	// Offloaded to R2: serve through the geoqartuli-media Worker (CORS + range, no r2.dev rate limit).
-	if ( preg_match( '#^https://pub-[a-f0-9]+\.r2\.dev/(.+)$#', $url, $m ) ) {
-		return 'https://geoqartuli-media.giorgisheri.workers.dev/' . $m[1];
-	}
 	$rel  = (string) get_post_meta( $att_id, '_wp_attached_file', true );
 	$file = $rel ? trailingslashit( WP_CONTENT_DIR ) . 'uploads/' . $rel : '';
 	if ( $file && file_exists( $file ) ) {
 		return content_url( 'uploads/' . $rel );
+	}
+	$url = geoq_lm_url( $att_id );
+	// No local copy: serve the R2 file through the media Worker (CORS + range support).
+	if ( preg_match( '#^https://pub-[a-f0-9]+\.r2\.dev/(.+)$#', $url, $m ) ) {
+		return 'https://geoqartuli-media.giorgisheri.workers.dev/' . $m[1];
 	}
 	return $url;
 }
