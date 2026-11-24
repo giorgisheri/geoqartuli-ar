@@ -55,6 +55,7 @@ h1{margin:0;font-size:clamp(28px,8vw,40px);line-height:1.08;font-weight:700;lett
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/","mindar-image-three":"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"}}</script>
+<link rel="preload" href="https://giorgisheri.github.io/geoqartuli-ar/logo.mind" as="fetch" crossorigin="anonymous"><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 </head>
 <body>
 <div id="ar"></div>
@@ -112,7 +113,7 @@ async function startAR(){
       let geo;if(GQ.shape==='square'){const r=0.05,sh=new THREE.Shape();sh.moveTo(r,0);sh.lineTo(1-r,0);sh.quadraticCurveTo(1,0,1,r);sh.lineTo(1,1-r);sh.quadraticCurveTo(1,1,1-r,1);sh.lineTo(r,1);sh.quadraticCurveTo(0,1,0,1-r);sh.lineTo(0,r);sh.quadraticCurveTo(0,0,r,0);geo=new THREE.ShapeGeometry(sh,24);geo.translate(-0.5,-0.5,0);}else{geo=new THREE.CircleGeometry(0.49,96);}
       const disc=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex}));
       const anchor=mind.addAnchor(0);anchor.group.add(disc);
-      anchor.onTargetFound=()=>{playVid();$('frame').style.display='none';$('hintText').textContent=t('Download the app for more');};
+      anchor.onTargetFound=()=>{if(!window.__gqFound){window.__gqFound=1;try{vid.currentTime=0;}catch(e){}}playVid();$('frame').style.display='none';$('hintText').textContent=t('Download the app for more');};
       anchor.onTargetLost=()=>{vid.pause();$('frame').style.display='flex';$('hintText').textContent=t(HINT);};
     }
     await mind.start();
@@ -125,7 +126,7 @@ async function startAR(){
   }
 }
 $('start').addEventListener('click',()=>{if(tapped)return;tapped=true;
-  vid.muted=false;vid.play().then(()=>{vid.pause();vid.currentTime=0;}).catch(()=>{});
+  vid.muted=false;vid.play().then(()=>{vid.muted=true;}).catch(()=>{vid.muted=true;vid.play().catch(()=>{});});
   startAR();});
 </script>
 </body>
