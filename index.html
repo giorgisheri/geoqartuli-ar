@@ -32,7 +32,7 @@ button,.btn{appearance:none;border:0;border-radius:999px;padding:14px 26px;font:
   <button id="go" class="gold" style="display:none">▶ Try again</button>
   <button id="watch" class="ghost" style="position:absolute;bottom:calc(28px + env(safe-area-inset-bottom))">Just watch the video</button>
 </div>
-<div id="hint"><span id="hintText">Point your camera at the logo</span><a class="btn gold" href="https://geoqartuli.com">Get the GeoQartuli app</a></div>
+<div id="hint"><span id="hintText">Point your camera at the logo</span><a id="getapp" class="btn gold" href="https://apps.apple.com/us/app/geoqartuli/id6817823917">Get the GeoQartuli app</a></div>
 <button id="sound" class="gold" style="position:fixed;top:calc(16px + env(safe-area-inset-top));right:16px;z-index:6;display:none">🔊 Tap for sound</button>
 <div id="fallback"><video id="fv" src="full.mp4" playsinline controls></video><button class="ghost" id="closeF">Close</button></div>
 <video id="vid" src="promo.mp4" playsinline webkit-playsinline loop preload="auto" style="position:fixed;top:0;left:0;width:2px;height:2px;opacity:0;pointer-events:none"></video>
@@ -76,6 +76,8 @@ let tapped=false;
 $('start').addEventListener('click',()=>{if(tapped)return;tapped=true;
   vid.muted=false;vid.play().then(()=>{vid.pause();vid.currentTime=0;}).catch(()=>{});
   startAR();});
+{const ios=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+ if(!ios)$('getapp').href='https://geoqartuli.com';}
 $('go').onclick=e=>{e.stopPropagation();startAR();};
 </script>
 </body>
