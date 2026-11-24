@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B1530">
+<title>GeoQartuli Live Mug</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE warm gift shop · IDEA a gift box you open · PICTURE the mug, then your mug · COLOUR navy, swan, gold · TYPE DM Serif Display + Inter */
+:root{--navy:#0B1530;--royal:#112250;--sapphire:#3C507D;--gold:#E0C58F;--gold2:#C9A968;--swan:#F5F0E9;--shell:#D9CBC2;--ink:#1E2A4A;--muted:#5D6880;--line:rgba(17,34,80,.14)}
+*{box-sizing:border-box;min-width:0}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+body{margin:0;background:var(--swan);color:var(--ink);font:16px/1.6 Inter,-apple-system,system-ui,sans-serif;overflow-x:clip}
+img{max-width:100%;display:block}
+.wrap{max-width:1160px;margin:0 auto;padding:0 max(5vw,18px)}
+h1,h2,h3{font-family:"DM Serif Display",Georgia,serif;font-weight:400;line-height:1.05;margin:0;text-wrap:balance}
+.kicker{font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 28px;border-radius:999px;border:0;font:600 16px Inter,system-ui;cursor:pointer;text-decoration:none;transition:transform .15s,box-shadow .2s}
+.btn:active{transform:scale(.98)}
+.btn-gold{background:var(--gold);color:var(--royal);box-shadow:0 10px 30px rgba(224,197,143,.35)}
+.btn-gold:hover{box-shadow:0 14px 40px rgba(224,197,143,.5)}
+.btn-navy{background:var(--royal);color:var(--swan)}
+.btn:focus-visible,button:focus-visible,input:focus-visible+label{outline:3px solid var(--gold);outline-offset:3px}
+/* header */
+header{position:sticky;top:0;z-index:20;background:rgba(11,21,48,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(224,197,143,.18)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--swan);text-decoration:none;font-weight:700;letter-spacing:.01em}
+.brand img{width:36px;height:36px;border-radius:50%}
+header .btn{min-height:40px;padding:0 18px;font-size:14px}
+/* hero */
+.hero{background:radial-gradient(90% 70% at 70% 35%,#1E3A82 0%,var(--royal) 45%,var(--navy) 100%);color:var(--swan);overflow:hidden;position:relative}
+.hero::after{content:"";position:absolute;inset:auto 0 0 0;height:90px;background:linear-gradient(transparent,rgba(11,21,48,.5))}
+.hero .wrap{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(20px,4vw,56px);align-items:center;padding-top:clamp(36px,6vw,80px);padding-bottom:clamp(40px,6vw,84px);position:relative;z-index:1}
+.hero h1{font-size:clamp(40px,6.2vw,72px);margin:14px 0 18px;color:#fff}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p.lead{font-size:clamp(17px,1.6vw,19px);color:#C9D2EA;max-width:34ch;margin:0 0 26px}
+.price{display:flex;align-items:baseline;gap:12px;margin-bottom:24px}
+.price b{font:400 40px "DM Serif Display",serif;color:#fff}
+.price span{color:var(--gold);font-weight:600;font-size:14px}
+.trust{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:22px;font-size:13.5px;color:#AEBAD4}
+.trust span::before{content:"✓";color:var(--gold);margin-right:6px;font-weight:700}
+.hero-art{position:relative}
+.hero-art::before{content:"";position:absolute;inset:8% 6% 14%;border-radius:50%;background:radial-gradient(closest-side,rgba(224,197,143,.32),transparent);filter:blur(10px)}
+.hero-art img{position:relative;width:100%;animation:float 6s ease-in-out infinite}
+.badge-live{position:absolute;left:4%;top:8%;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(224,197,143,.4);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600}
+.badge-live i{width:8px;height:8px;border-radius:50%;background:#ff4d4d;box-shadow:0 0 0 0 rgba(255,77,77,.6);animation:rec 1.6s infinite}
+@keyframes float{50%{transform:translateY(-10px)}}
+@keyframes rec{70%{box-shadow:0 0 0 10px rgba(255,77,77,0)}100%{box-shadow:0 0 0 0 rgba(255,77,77,0)}}
+/* steps */
+.band{padding:clamp(48px,7vw,96px) 0}
+.head{text-align:center;max-width:640px;margin:0 auto clamp(28px,4vw,48px)}
+.head h2{font-size:clamp(32px,4.4vw,48px);color:var(--royal);margin-top:10px}
+.head p{color:var(--muted);margin:12px 0 0}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;counter-reset:s}
+.step{background:#fff;border-radius:22px;padding:26px 24px;border:1px solid var(--line);position:relative}
+.step::before{counter-increment:s;content:counter(s);position:absolute;top:22px;right:22px;font:400 44px "DM Serif Display",serif;color:rgba(224,197,143,.55);line-height:1}
+.step .ic{width:52px;height:52px;border-radius:16px;background:var(--royal);display:grid;place-items:center;margin-bottom:16px}
+.step .ic svg{width:26px;height:26px;stroke:var(--gold);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.step h3{font-size:24px;color:var(--royal);margin-bottom:6px}
+.step p{margin:0;color:var(--muted);font-size:15px}
+/* builder */
+#create{background:linear-gradient(180deg,var(--swan),#EFE7DC)}
+.builder{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(18px,3vw,36px);align-items:start}
+.stage{position:sticky;top:84px;background:radial-gradient(80% 70% at 50% 40%,#1E3A82,var(--royal) 55%,var(--navy));border-radius:28px;padding:22px 18px 18px;color:#fff;overflow:hidden}
+.stage canvas{width:100%;height:auto;display:block}
+.stage .cap{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#AEBAD4;padding:4px 6px 0}
+.stage .cap b{color:var(--gold);font-weight:600}
+.views{display:flex;gap:8px}
+.views button{border:1px solid rgba(224,197,143,.4);background:transparent;color:#fff;border-radius:999px;padding:6px 12px;font:600 12px Inter;cursor:pointer}
+.views button[aria-pressed=true]{background:var(--gold);color:var(--royal);border-color:var(--gold)}
+.form{display:flex;flex-direction:column;gap:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:20px}
+.card h3{font:600 17px Inter,system-ui;color:var(--royal);display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.card h3 .n{width:28px;height:28px;border-radius:50%;background:var(--royal);color:var(--gold);display:grid;place-items:center;font-size:13px}
+.card h3 .ok{margin-left:auto;color:#2E8B57;font-size:13px;display:none}
+.card.done h3 .ok{display:inline}
+.drop{position:relative;display:flex;align-items:center;gap:14px;border:1.5px dashed rgba(17,34,80,.28);border-radius:16px;padding:16px;cursor:pointer;transition:border-color .2s,background .2s}
+.drop:hover,.drop.over{border-color:var(--gold2);background:#FBF8F2}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop .th{flex:none;width:64px;height:64px;border-radius:12px;background:var(--swan);display:grid;place-items:center;overflow:hidden}
+.drop .th img,.drop .th video{width:100%;height:100%;object-fit:cover}
+.drop .th svg{width:26px;height:26px;stroke:var(--sapphire);fill:none;stroke-width:1.8}
+.drop b{display:block;color:var(--royal);font-size:15px}
+.drop small{color:var(--muted);font-size:13px}
+.err{color:#B3261E;font-size:13px;margin:8px 2px 0;display:none}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{position:relative}
+.opt input{position:absolute;opacity:0}
+.opt label{display:block;border:1.5px solid var(--line);border-radius:16px;padding:14px;cursor:pointer;transition:.2s}
+.opt label b{display:block;color:var(--royal)}
+.opt label span{font:400 26px "DM Serif Display",serif;color:var(--royal)}
+.opt label small{display:block;color:var(--muted);font-size:12.5px}
+.opt label em{font-style:normal;font-size:11px;font-weight:700;color:var(--royal);background:var(--gold);border-radius:999px;padding:2px 8px;margin-left:6px}
+.opt input:checked+label{border-color:var(--royal);background:#F6F7FB;box-shadow:inset 0 0 0 1px var(--royal)}
+.sum{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sum .tot{font:400 32px "DM Serif Display",serif;color:var(--royal)}
+.sum .tot small{display:block;font:500 12.5px Inter;color:var(--muted)}
+.sum .btn{flex:1 1 220px}
+.note{font-size:12.5px;color:var(--muted);text-align:center;margin:4px 0 0}
+/* features */
+.feat{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.f{background:var(--royal);color:#fff;border-radius:20px;padding:22px}
+.f b{display:block;font:400 22px "DM Serif Display",serif;color:var(--gold);margin-bottom:4px}
+.f span{font-size:14px;color:#C9D2EA}
+/* faq */
+.faq{max-width:760px;margin:0 auto}
+details{background:#fff;border:1px solid var(--line);border-radius:16px;padding:0 20px;margin-bottom:10px}
+summary{cursor:pointer;list-style:none;padding:18px 0;font-weight:600;color:var(--royal);display:flex;justify-content:space-between;gap:12px}
+summary::after{content:"+";color:var(--gold2);font-size:22px;line-height:1}
+details[open] summary::after{content:"–"}
+details p{margin:0 0 18px;color:var(--muted)}
+footer{background:var(--navy);color:#AEBAD4;text-align:center;padding:34px 18px calc(34px + env(safe-area-inset-bottom));font-size:13px}
+footer b{color:var(--gold);letter-spacing:.06em}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,140%);background:var(--royal);color:#fff;padding:14px 20px;border-radius:14px;border:1px solid rgba(224,197,143,.4);font-size:14px;transition:transform .35s;z-index:30;max-width:90vw;text-align:center}
+.toast.show{transform:translate(-50%,0)}
+.proto{font-size:12px;color:var(--muted);text-align:center;padding:10px}
+@media(max-width:900px){.builder{grid-template-columns:1fr}.stage{position:relative;top:0}.feat{grid-template-columns:1fr 1fr}}
+@media(max-width:720px){.hero .wrap{grid-template-columns:1fr;text-align:center}.hero p.lead{margin-inline:auto}.price,.trust{justify-content:center}.hero-art{order:-1;max-width:460px;margin:0 auto}.steps{grid-template-columns:1fr}}
+@media(max-width:420px){.opts{grid-template-columns:1fr}.feat{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a class="brand" href="#top"><img src="logo.png" alt="">GeoQartuli</a>
+  <a class="btn btn-gold" href="#create">Create yours</a>
+</div></header>
+
+<section class="hero" id="top"><div class="wrap">
+  <div>
+    <div class="kicker">GeoQartuli Live Mug</div>
+    <h1>A mug that <em>plays</em> your video</h1>
+    <p class="lead">Print a photo, add a video message. When they point their phone at the mug, the photo comes alive — with sound.</p>
+    <div class="price"><b>$34.99</b><span>Free shipping · gift box included</span></div>
+    <a class="btn btn-gold" href="#create">▶ Create your mug</a>
+    <div class="trust"><span>No app needed</span><span>Ships in 3–5 days</span><span>Made in the USA</span></div>
+  </div>
+  <div class="hero-art">
+    <span class="badge-live"><i></i>Live video</span>
+    <img src="mug_hero.webp" alt="GeoQartuli mug with logo and QR code" width="1290" height="878">
+  </div>
+</div></section>
+
+<section class="band"><div class="wrap">
+  <div class="head"><div class="kicker">How it works</div><h2>Three steps to a gift they’ll replay</h2></div>
+  <div class="steps">
+    <div class="step"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 8"/></svg></div><h3>Upload</h3><p>Choose a photo for the mug and record a short video — a birthday wish, a song, a hello.</p></div>
+    <div class="step"><div class="ic"><svg viewBox="0 0 24 24"><path d="M5 8h11v7a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"/><path d="M16 10h2a2 2 0 0 1 0 4h-2"/><path d="M8 3v2M11 3v2M14 3v2"/></svg></div><h3>We print</h3><p>Your photo is printed on a glossy ceramic mug and shipped in a gift box in 3–5 days.</p></div>
+    <div class="step"><div class="ic"><svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/><path d="m10 8 4 2.5-4 2.5z"/></svg></div><h3>They watch</h3><p>They scan the code, point the camera at the photo — and your video plays right on the mug.</p></div>
+  </div>
+</div></section>
+
+<section class="band" id="create"><div class="wrap">
+  <div class="head"><div class="kicker">Create yours</div><h2>See your mug as you make it</h2><p>Upload a photo and the preview updates instantly.</p></div>
+  <div class="builder">
+    <div class="stage">
+      <canvas id="mug" width="900" height="760" aria-label="Mug preview"></canvas>
+      <div class="cap"><span><b>Preview</b> · 11 oz ceramic</span><div class="views"><button id="vFront" aria-pressed="true">Photo side</button><button id="vBack" aria-pressed="false">QR side</button></div></div>
+    </div>
+    <div class="form">
+      <div class="card" id="c1"><h3><span class="n">1</span>Your photo<span class="ok">✓ Added</span></h3>
+        <label class="drop" id="d1"><input type="file" id="photo" accept="image/*"><span class="th" id="t1"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 8"/></svg></span><span><b id="n1">Choose a photo</b><small>Clear and bright works best · JPG or PNG</small></span></label>
+        <div class="err" id="e1"></div></div>
+      <div class="card" id="c2"><h3><span class="n">2</span>Your video<span class="ok">✓ Added</span></h3>
+        <label class="drop" id="d2"><input type="file" id="video" accept="video/*"><span class="th" id="t2"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="3"/><path d="m16 10 6-3v10l-6-3"/></svg></span><span><b id="n2">Choose a video</b><small>Up to 60 seconds · sound included</small></span></label>
+        <div class="err" id="e2"></div></div>
+      <div class="card"><h3><span class="n">3</span>How many?</h3>
+        <div class="opts">
+          <div class="opt"><input type="radio" name="q" id="q1" value="1" checked><label for="q1"><b>1 mug</b><span>$34.99</span><small>Gift box included</small></label></div>
+          <div class="opt"><input type="radio" name="q" id="q2" value="2"><label for="q2"><b>2 mugs <em>Save $10</em></b><span>$59.99</span><small>One for each of you</small></label></div>
+        </div></div>
+      <div class="card"><div class="sum"><div class="tot" id="tot">$34.99<small>Free shipping in the USA</small></div><button class="btn btn-navy" id="buy">Add to cart</button></div>
+        <div class="err" id="e3"></div>
+        <p class="note">Secure checkout · Apple Pay, cards and PayPal</p></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="band" style="padding-top:0"><div class="wrap feat">
+  <div class="f"><b>With sound</b><span>Your voice plays the moment the photo is found.</span></div>
+  <div class="f"><b>No app</b><span>Works in the phone’s camera and browser.</span></div>
+  <div class="f"><b>Gift-ready</b><span>Arrives in a gift box, ready to give.</span></div>
+  <div class="f"><b>Lasts</b><span>Glossy print, hand-wash to keep it bright.</span></div>
+</div></section>
+
+<section class="band" style="padding-top:0"><div class="wrap">
+  <div class="head"><div class="kicker">Questions</div><h2>Good to know</h2></div>
+  <div class="faq">
+    <details><summary>Do they need to download an app?</summary><p>No. They scan the code on the mug with the phone camera, tap once, allow the camera and point it at the photo.</p></details>
+    <details><summary>Which phones does it work on?</summary><p>Any recent iPhone or Android phone with a camera and a browser.</p></details>
+    <details><summary>How long can the video be?</summary><p>Up to 60 seconds. We compress it so it loads quickly on any connection.</p></details>
+    <details><summary>When will it arrive?</summary><p>Mugs are printed in the USA and usually arrive 3–5 business days after you order.</p></details>
+    <details><summary>Is my video private?</summary><p>Each mug gets its own private link that nobody can guess. Only people with the mug can open it.</p></details>
+  </div>
+</div></section>
+
+<footer><b>www.geoqartuli.com</b><br>GeoQartuli Live Mug</footer>
+<p class="proto">Preview version — not open to customers yet.</p>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+{
+const $=id=>document.getElementById(id);
+const cv=$('mug'),ctx=cv.getContext('2d');
+const PW=1275,PH=525,CIRC=Math.round(PW*10.2/8.5),OFF=Math.round((CIRC-PW)/2);
+const print=document.createElement('canvas');print.width=PW;print.height=PH;
+const pc=print.getContext('2d');
+const qr=new Image();qr.src='qr_mug.png';
+let photo=new Image();photo.src='logo.png';let isLogo=true;let view='front';
+const site='www.geoqartuli.com';
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+function drawPrint(){
+  pc.fillStyle='#fff';pc.fillRect(0,0,PW,PH);
+  const S=405,cx=637,cy=PH/2;
+  if(photo.complete&&photo.naturalWidth){
+    if(isLogo){pc.drawImage(photo,cx-S/2,cy-S/2,S,S);}
+    else{const iw=photo.naturalWidth,ih=photo.naturalHeight,s=Math.min(iw,ih);
+      pc.save();rr(pc,cx-S/2,cy-S/2,S,S,22);pc.clip();
+      pc.drawImage(photo,(iw-s)/2,(ih-s)/2,s,s,cx-S/2,cy-S/2,S,S);pc.restore();}
+  }
+  const q=190,qx=1135-q/2,qy=245;
+  if(qr.complete&&qr.naturalWidth)pc.drawImage(qr,qx,qy,q,q);
+  pc.fillStyle='#112250';pc.font='500 17px Inter,system-ui';pc.textAlign='center';pc.fillText(site,1135,qy+q+28);
+}
+function render(){
+  drawPrint();
+  const W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);
+  const BW=470,BH=540,x0=(W-BW)/2-20,y0=120,center=view==='front'?637:1135;
+  ctx.save();ctx.fillStyle='rgba(0,0,0,.38)';ctx.filter='blur(22px)';ctx.beginPath();ctx.ellipse(W/2,y0+BH+18,BW*.56,34,0,0,7);ctx.fill();ctx.restore();
+  const hx=x0+BW-60,hy=y0+130;
+  if(view==='back'){ctx.save();ctx.lineWidth=54;ctx.strokeStyle='#CFCAC3';rr(ctx,hx,hy,200,290,96);ctx.stroke();ctx.lineWidth=34;ctx.strokeStyle='#F7F6F3';rr(ctx,hx+8,hy+8,184,274,88);ctx.stroke();ctx.restore();}
+  ctx.save();rr(ctx,x0,y0,BW,BH,26);ctx.clip();ctx.fillStyle='#fff';ctx.fillRect(x0,y0,BW,BH);
+  const mt=BH*.035,ph=BH-2*mt;
+  for(let i=0;i<BW;i++){const u=(i+.5)/BW*2-1,th=Math.asin(Math.max(-.999,Math.min(.999,u)));
+    let sx=Math.round(center+OFF+th/(2*Math.PI)*CIRC)%CIRC-OFF;
+    if(sx>=0&&sx<PW)ctx.drawImage(print,sx,0,1,PH,x0+i,y0+mt,1,ph);}
+  const g=ctx.createLinearGradient(x0,0,x0+BW,0);
+  g.addColorStop(0,'rgba(20,24,40,.34)');g.addColorStop(.16,'rgba(20,24,40,.06)');g.addColorStop(.27,'rgba(255,255,255,.55)');g.addColorStop(.31,'rgba(255,255,255,0)');
+  g.addColorStop(.7,'rgba(20,24,40,0)');g.addColorStop(.86,'rgba(20,24,40,.12)');g.addColorStop(1,'rgba(20,24,40,.38)');
+  ctx.fillStyle=g;ctx.fillRect(x0,y0,BW,BH);ctx.restore();
+  ctx.beginPath();ctx.ellipse(x0+BW/2,y0,BW/2,22,0,0,7);ctx.fillStyle='#EEECE8';ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#D2CFC9';ctx.stroke();
+  ctx.beginPath();ctx.ellipse(x0+BW/2,y0,BW/2-13,14,0,0,7);ctx.fillStyle='#463428';ctx.fill();
+}
+photo.onload=qr.onload=render;
+if(document.fonts)document.fonts.ready.then(render);
+function setView(v){view=v;$('vFront').setAttribute('aria-pressed',v==='front');$('vBack').setAttribute('aria-pressed',v==='back');render();}
+$('vFront').onclick=()=>setView('front');$('vBack').onclick=()=>setView('back');
+function toast(t){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),3200);}
+function dnd(drop,input){['dragenter','dragover'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.add('over')}));
+  ['dragleave','drop'].forEach(e=>drop.addEventListener(e,()=>drop.classList.remove('over')));
+  drop.addEventListener('drop',ev=>{ev.preventDefault();if(ev.dataTransfer.files[0]){input.files=ev.dataTransfer.files;input.dispatchEvent(new Event('change'))}});}
+dnd($('d1'),$('photo'));dnd($('d2'),$('video'));
+let hasPhoto=false,hasVideo=false;
+$('photo').addEventListener('change',e=>{const f=e.target.files[0];$('e1').style.display='none';if(!f)return;
+  if(!f.type.startsWith('image/')){$('e1').textContent='Please choose an image file.';$('e1').style.display='block';return;}
+  const url=URL.createObjectURL(f);const im=new Image();
+  im.onload=()=>{if(Math.min(im.naturalWidth,im.naturalHeight)<800){$('e1').textContent='This photo is small and may print blurry. A larger photo is better.';$('e1').style.display='block';}
+    photo=im;isLogo=false;hasPhoto=true;setView('front');
+    $('t1').innerHTML='';const t=new Image();t.src=url;t.alt='';$('t1').appendChild(t);
+    $('n1').textContent=f.name.length>28?f.name.slice(0,25)+'…':f.name;$('c1').classList.add('done');};
+  im.src=url;});
+$('video').addEventListener('change',e=>{const f=e.target.files[0];$('e2').style.display='none';if(!f)return;
+  if(!f.type.startsWith('video/')){$('e2').textContent='Please choose a video file.';$('e2').style.display='block';return;}
+  const url=URL.createObjectURL(f);const v=document.createElement('video');v.muted=true;v.playsInline=true;v.preload='metadata';
+  v.onloadedmetadata=()=>{if(v.duration>61){$('e2').textContent='This video is '+Math.round(v.duration)+' seconds. Please choose one up to 60 seconds.';$('e2').style.display='block';$('c2').classList.remove('done');hasVideo=false;return;}
+    hasVideo=true;$('t2').innerHTML='';v.currentTime=Math.min(1,v.duration/2);$('t2').appendChild(v);
+    $('n2').textContent=Math.round(v.duration)+' sec video added';$('c2').classList.add('done');};
+  v.src=url;});
+document.querySelectorAll('input[name=q]').forEach(r=>r.addEventListener('change',()=>{
+  $('tot').firstChild.nodeValue=r.value==='2'&&r.checked?'$59.99':'$34.99';}));
+$('buy').onclick=()=>{$('e3').style.display='none';
+  if(!hasPhoto||!hasVideo){$('e3').textContent=!hasPhoto?'Add your photo first.':'Add your video first.';$('e3').style.display='block';return;}
+  toast('Looks great! Checkout opens when the Live Mug launches.');};
+}
+</script>
+</body>
+</html>
