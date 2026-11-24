@@ -132,7 +132,7 @@ add_action( 'pre_get_posts', function ( $query ) {
 	}
 } );
 
-function geoq_lm_save_file( $key, $post_id, $types, $max_mb ) {
+function geoq_lm_save_file( $key, $post_id, $types, $max_mb, $code = '' ) {
 	if ( empty( $_FILES[ $key ] ) || ! empty( $_FILES[ $key ]['error'] ) ) {
 		return 0;
 	}
@@ -148,6 +148,11 @@ function geoq_lm_save_file( $key, $post_id, $types, $max_mb ) {
 	}
 	if ( ! $ok ) {
 		return new WP_Error( 'bad_type', $key . ' has a wrong file type', array( 'status' => 415 ) );
+	}
+	if ( $code ) {
+		$ext = strtolower( pathinfo( (string) $f['name'], PATHINFO_EXTENSION ) );
+		$ext = preg_replace( '/[^a-z0-9]/', '', $ext );
+		$_FILES[ $key ]['name'] = 'lm-' . $code . '-' . $key . '-' . substr( md5( uniqid( '', true ) ), 0, 6 ) . ( $ext ? '.' . $ext : '' );
 	}
 	require_once ABSPATH . 'wp-admin/includes/file.php';
 	require_once ABSPATH . 'wp-admin/includes/media.php';
@@ -228,7 +233,7 @@ function geoq_lm_create( WP_REST_Request $r ) {
 	);
 	$ids = array();
 	foreach ( $files as $k => $rule ) {
-		$id = geoq_lm_save_file( $k, $pid, $rule[0], $rule[1] );
+		$id = geoq_lm_save_file( $k, $pid, $rule[0], $rule[1], $code );
 		if ( is_wp_error( $id ) ) {
 			wp_delete_post( $pid, true );
 			return $id;
@@ -280,7 +285,7 @@ function geoq_lm_replace_video( WP_REST_Request $r ) {
 	if ( ! geoq_lm_rate_ok() ) {
 		return new WP_Error( 'slow_down', 'Too many uploads. Please try again later.', array( 'status' => 429 ) );
 	}
-	$id = geoq_lm_save_file( 'video', $pid, array( 'video/' ), 60 );
+	$id = geoq_lm_save_file( 'video', $pid, array( 'video/' ), 60, (string) $r['code'] );
 	if ( is_wp_error( $id ) || ! $id ) {
 		return is_wp_error( $id ) ? $id : new WP_Error( 'upload', 'Upload failed.', array( 'status' => 500 ) );
 	}
