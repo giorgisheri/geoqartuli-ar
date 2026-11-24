@@ -58,8 +58,8 @@ html:not(#_) .glm{--navy:#0B1530;--royal:#112250;--sapphire:#3C507D;--gold:#E0C5
       </div>
       <div class="card"><h3><span class="n">5</span>How many?</h3>
         <div class="opts">
-          <div class="opt"><input type="radio" name="q" id="q1" value="1" checked><label for="q1"><b>1 mug</b><span class="notranslate" translate="no">$34.99</span><small>Gift box included</small></label></div>
-          <div class="opt"><input type="radio" name="q" id="q2" value="2"><label for="q2"><b>2 mugs <em class="notranslate" translate="no">−$10</em></b><span class="notranslate" translate="no">$59.99</span><small>One for each of you</small></label></div>
+          <div class="opt"><input type="radio" name="q" id="q1" value="1" checked><label for="q1"><b>1 mug</b><span class="notranslate" translate="no" id="p1">$34.99</span><small>Gift box included</small></label></div>
+          <div class="opt"><input type="radio" name="q" id="q2" value="2"><label for="q2"><b>2 mugs <em class="notranslate" translate="no">−$10</em></b><span class="notranslate" translate="no" id="p2">$59.99</span><small>One for each of you</small></label></div>
         </div></div>
       <div class="card" id="c6"><h3><span class="n">6</span>Sending it as a gift?<span class="ok">✓ Added</span></h3>
         <label class="sw"><input type="checkbox" id="gift"><span class="tr"></span><span><b>Ship it straight to them</b><small>We send the mug to their address in a gift box, with no prices inside</small></span></label>
@@ -187,7 +187,9 @@ $('video').addEventListener('change',e=>{const f=e.target.files[0];$('e2').style
     $('n2').textContent=Math.round(v.duration)+' sec video added';$('c2').classList.add('done');};
   v.src=url;});
 function total(){const n=document.querySelector('input[name=q]:checked').value==='2'?2:1;
-  const base=n===2?59.99:34.99;const t=base+((useLogo?5:0)+(useSite?5:0))*n+($('edit').checked?9.99:0);$('totv').textContent='$'+t.toFixed(2);}
+  const add=(useLogo?5:0)+(useSite?5:0),ed=$('edit').checked?9.99:0;const f=v=>'$'+v.toFixed(2);
+  $('p1').textContent=f(34.99+add+ed);$('p2').textContent=f(59.99+add*2+ed);
+  const t=(n===2?59.99:34.99)+add*n+ed;$('totv').textContent='$'+t.toFixed(2);}
 document.querySelectorAll('input[name=q]').forEach(r=>r.addEventListener('change',total));
 $('edit').addEventListener('change',total);
 function bizUI(){$('c4').classList.toggle('done',(useLogo&&!!blogo)||(useSite&&!!$('bsite').value.trim()));}
