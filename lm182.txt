@@ -1,0 +1,374 @@
+// GeoQartuli Live Mug — backend (records, uploads, AR page per mug, admin tools).
+// Records live in the private post type geoq_livemug. Files go to the media library (offloaded to R2).
+
+if ( ! defined( 'GEOQ_LM_AR_PAGE' ) ) {
+	define( 'GEOQ_LM_AR_PAGE', 16908 );
+}
+
+add_action( 'init', function () {
+	register_post_type( 'geoq_livemug', array(
+		'labels'          => array( 'name' => 'Live Mugs', 'singular_name' => 'Live Mug', 'menu_name' => 'Live Mugs' ),
+		'public'          => false,
+		'show_ui'         => true,
+		'show_in_menu'    => true,
+		'menu_icon'       => 'dashicons-coffee',
+		'supports'        => array( 'title' ),
+		'capability_type' => 'post',
+		'capabilities'    => array( 'create_posts' => 'do_not_allow' ),
+		'map_meta_cap'    => true,
+	) );
+	add_rewrite_rule( '^live/([a-z0-9]{8})/?$', 'index.php?geoq_live=$matches[1]', 'top' );
+	add_rewrite_rule( '^live/([a-z0-9]{8})/edit/?$', 'index.php?geoq_live=$matches[1]&geoq_live_edit=1', 'top' );
+	if ( get_option( 'geoq_lm_rewrite' ) !== '3' ) {
+		flush_rewrite_rules( false );
+		update_option( 'geoq_lm_rewrite', '3' );
+	}
+} );
+
+add_filter( 'query_vars', function ( $vars ) {
+	$vars[] = 'geoq_live';
+	$vars[] = 'geoq_live_edit';
+	return $vars;
+} );
+
+function geoq_lm_code() {
+	$chars = 'abcdefghjkmnpqrstuvwxyz23456789';
+	$max   = strlen( $chars ) - 1;
+	do {
+		$code = '';
+		for ( $i = 0; $i < 8; $i++ ) {
+			$code .= $chars[ random_int( 0, $max ) ];
+		}
+	} while ( geoq_lm_find( $code ) );
+	return $code;
+}
+
+function geoq_lm_find( $code ) {
+	$q = get_posts( array(
+		'post_type'      => 'geoq_livemug',
+		'post_status'    => 'any',
+		'meta_key'       => '_lm_code',
+		'meta_value'     => $code,
+		'posts_per_page' => 1,
+		'fields'         => 'ids',
+	) );
+	return $q ? (int) $q[0] : 0;
+}
+
+function geoq_lm_url( $att_id ) {
+	return $att_id ? wp_get_attachment_url( (int) $att_id ) : '';
+}
+
+// Allow the AR target file type only while our endpoint is saving files.
+$GLOBALS['geoq_lm_saving'] = false;
+add_filter( 'upload_mimes', function ( $m ) {
+	if ( ! empty( $GLOBALS['geoq_lm_saving'] ) ) {
+		$m['mind'] = 'application/octet-stream';
+	}
+	return $m;
+} );
+add_filter( 'wp_check_filetype_and_ext', function ( $data, $file, $filename ) {
+	if ( ! empty( $GLOBALS['geoq_lm_saving'] ) && preg_match( '/\.mind$/i', $filename ) ) {
+		$data['ext']  = 'mind';
+		$data['type'] = 'application/octet-stream';
+		$data['proper_filename'] = $filename;
+	}
+	return $data;
+}, 10, 3 );
+
+function geoq_lm_save_file( $key, $post_id, $types, $max_mb ) {
+	if ( empty( $_FILES[ $key ] ) || ! empty( $_FILES[ $key ]['error'] ) ) {
+		return 0;
+	}
+	$f = $_FILES[ $key ];
+	if ( $f['size'] > $max_mb * 1048576 ) {
+		return new WP_Error( 'too_big', $key . ' is too large', array( 'status' => 413 ) );
+	}
+	$ok = false;
+	foreach ( $types as $t ) {
+		if ( strpos( (string) $f['type'], $t ) === 0 ) {
+			$ok = true;
+		}
+	}
+	if ( ! $ok ) {
+		return new WP_Error( 'bad_type', $key . ' has a wrong file type', array( 'status' => 415 ) );
+	}
+	require_once ABSPATH . 'wp-admin/includes/file.php';
+	require_once ABSPATH . 'wp-admin/includes/media.php';
+	require_once ABSPATH . 'wp-admin/includes/image.php';
+	$GLOBALS['geoq_lm_saving'] = true;
+	$id = media_handle_upload( $key, $post_id, array(), array( 'test_form' => false ) );
+	$GLOBALS['geoq_lm_saving'] = false;
+	return $id;
+}
+
+add_action( 'rest_api_init', function () {
+	register_rest_route( 'geoq/v1', '/livemug', array(
+		'methods'             => 'POST',
+		'permission_callback' => '__return_true',
+		'callback'            => 'geoq_lm_create',
+	) );
+	register_rest_route( 'geoq/v1', '/livemug/(?P<code>[a-z0-9]{8})/video', array(
+		'methods'             => 'POST',
+		'permission_callback' => '__return_true',
+		'callback'            => 'geoq_lm_replace_video',
+	) );
+	register_rest_route( 'geoq/v1', '/livemug/limits', array(
+		'methods'             => 'GET',
+		'permission_callback' => function () { return current_user_can( 'manage_options' ); },
+		'callback'            => function () {
+			return array(
+				'upload_max_filesize' => ini_get( 'upload_max_filesize' ),
+				'post_max_size'       => ini_get( 'post_max_size' ),
+				'max_execution_time'  => ini_get( 'max_execution_time' ),
+				'wp_max_upload'       => wp_max_upload_size(),
+			);
+		},
+	) );
+} );
+
+function geoq_lm_rate_ok() {
+	$ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : 'x';
+	$key = 'geoq_lm_rl_' . md5( $ip );
+	$n   = (int) get_transient( $key );
+	if ( $n >= 12 ) {
+		return false;
+	}
+	set_transient( $key, $n + 1, HOUR_IN_SECONDS );
+	return true;
+}
+
+function geoq_lm_create( WP_REST_Request $r ) {
+	if ( ! geoq_lm_rate_ok() ) {
+		return new WP_Error( 'slow_down', 'Too many uploads. Please try again later.', array( 'status' => 429 ) );
+	}
+	if ( $r->get_param( 'agree' ) !== '1' ) {
+		return new WP_Error( 'rules', 'Please confirm the content rules.', array( 'status' => 400 ) );
+	}
+	$email = sanitize_email( (string) $r->get_param( 'email' ) );
+	if ( ! is_email( $email ) ) {
+		return new WP_Error( 'email', 'Please enter a valid email.', array( 'status' => 400 ) );
+	}
+	if ( empty( $_FILES['photo'] ) || empty( $_FILES['video'] ) || empty( $_FILES['mind'] ) ) {
+		return new WP_Error( 'files', 'Photo and video are required.', array( 'status' => 400 ) );
+	}
+	$code = geoq_lm_code();
+	$pid  = wp_insert_post( array(
+		'post_type'   => 'geoq_livemug',
+		'post_status' => 'publish',
+		'post_title'  => 'Live Mug ' . $code . ' — ' . $email,
+	), true );
+	if ( is_wp_error( $pid ) ) {
+		return $pid;
+	}
+	$files = array(
+		'photo' => array( array( 'image/' ), 15 ),
+		'video' => array( array( 'video/' ), 95 ),
+		'mind'  => array( array( 'application/octet-stream', '' ), 6 ),
+		'logo'  => array( array( 'image/' ), 6 ),
+	);
+	$ids = array();
+	foreach ( $files as $k => $rule ) {
+		$id = geoq_lm_save_file( $k, $pid, $rule[0], $rule[1] );
+		if ( is_wp_error( $id ) ) {
+			wp_delete_post( $pid, true );
+			return $id;
+		}
+		$ids[ $k ] = (int) $id;
+	}
+	if ( ! $ids['photo'] || ! $ids['video'] || ! $ids['mind'] ) {
+		wp_delete_post( $pid, true );
+		return new WP_Error( 'upload', 'Upload failed. Please try again.', array( 'status' => 500 ) );
+	}
+	$gift = json_decode( (string) $r->get_param( 'gift' ), true );
+	$meta = array(
+		'_lm_code'    => $code,
+		'_lm_token'   => wp_generate_password( 24, false ),
+		'_lm_email'   => $email,
+		'_lm_qty'     => ( $r->get_param( 'qty' ) === '2' ) ? 2 : 1,
+		'_lm_logo'    => $ids['logo'] ? 1 : 0,
+		'_lm_site'    => sanitize_text_field( mb_substr( (string) $r->get_param( 'site' ), 0, 32 ) ),
+		'_lm_edit'    => ( $r->get_param( 'edit' ) === '1' ) ? 1 : 0,
+		'_lm_lang'    => sanitize_key( (string) $r->get_param( 'lang' ) ),
+		'_lm_gift'    => is_array( $gift ) ? array_map( 'sanitize_text_field', $gift ) : array(),
+		'_lm_status'  => 'new',
+		'_lm_photo'   => $ids['photo'],
+		'_lm_video'   => $ids['video'],
+		'_lm_mind'    => $ids['mind'],
+		'_lm_logo_id' => $ids['logo'],
+	);
+	foreach ( $meta as $k => $v ) {
+		update_post_meta( $pid, $k, $v );
+	}
+	$live = home_url( '/live/' . $code . '/' );
+	$admin = admin_url( 'post.php?post=' . $pid . '&action=edit' );
+	wp_mail(
+		get_option( 'admin_email' ),
+		'New Live Mug design ' . $code,
+		"A customer finished a Live Mug design (checkout may still be in progress).\n\nCode: " . $code . "\nEmail: " . $email . "\nMugs: " . $meta['_lm_qty'] . "\nAR page: " . $live . "\nReview and print file: " . $admin . "\n\nPlease watch the video before ordering the print."
+	);
+	return array( 'code' => $code, 'live' => $live );
+}
+
+function geoq_lm_replace_video( WP_REST_Request $r ) {
+	$pid = geoq_lm_find( (string) $r['code'] );
+	if ( ! $pid || ! hash_equals( (string) get_post_meta( $pid, '_lm_token', true ), (string) $r->get_param( 't' ) ) ) {
+		return new WP_Error( 'denied', 'This link is not valid.', array( 'status' => 403 ) );
+	}
+	if ( ! get_post_meta( $pid, '_lm_edit', true ) ) {
+		return new WP_Error( 'locked', 'Full editing is not included with this mug.', array( 'status' => 403 ) );
+	}
+	if ( ! geoq_lm_rate_ok() ) {
+		return new WP_Error( 'slow_down', 'Too many uploads. Please try again later.', array( 'status' => 429 ) );
+	}
+	$id = geoq_lm_save_file( 'video', $pid, array( 'video/' ), 95 );
+	if ( is_wp_error( $id ) || ! $id ) {
+		return is_wp_error( $id ) ? $id : new WP_Error( 'upload', 'Upload failed.', array( 'status' => 500 ) );
+	}
+	$old = (int) get_post_meta( $pid, '_lm_video', true );
+	update_post_meta( $pid, '_lm_video', (int) $id );
+	update_post_meta( $pid, '_lm_video_changed', current_time( 'mysql' ) );
+	if ( $old ) {
+		wp_delete_attachment( $old, true );
+	}
+	wp_mail( get_option( 'admin_email' ), 'Live Mug video changed ' . (string) $r['code'], 'The buyer uploaded a new video. Please watch it: ' . admin_url( 'post.php?post=' . $pid . '&action=edit' ) );
+	return array( 'ok' => true );
+}
+
+// Public AR page for one mug: /live/CODE/ and the edit page /live/CODE/edit/?t=TOKEN.
+add_action( 'template_redirect', function () {
+	$code = get_query_var( 'geoq_live' );
+	if ( ! $code ) {
+		return;
+	}
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', true );
+	}
+	nocache_headers();
+	$pid = geoq_lm_find( $code );
+	if ( ! $pid || get_post_meta( $pid, '_lm_status', true ) === 'blocked' ) {
+		status_header( 404 );
+		header( 'Content-Type: text/html; charset=utf-8' );
+		echo '<!DOCTYPE html><meta name="viewport" content="width=device-width,initial-scale=1"><title>GeoQartuli</title><body style="font:16px system-ui;background:#0B1530;color:#F5F0E9;display:grid;place-items:center;min-height:100vh;margin:0;text-align:center"><div><p>This mug link is not available.</p><p><a style="color:#E0C58F" href="https://geoqartuli.com">geoqartuli.com</a></p></div>';
+		exit;
+	}
+	if ( get_query_var( 'geoq_live_edit' ) ) {
+		geoq_lm_render_edit( $pid, $code );
+		exit;
+	}
+	$html = get_post_field( 'post_content', GEOQ_LM_AR_PAGE, 'raw' );
+	$base = 'https://giorgisheri.github.io/geoqartuli-ar/';
+	$photo = wp_get_attachment_image_url( (int) get_post_meta( $pid, '_lm_photo', true ), 'medium' );
+	$swap = array(
+		$base . 'logo.mind' => geoq_lm_url( get_post_meta( $pid, '_lm_mind', true ) ),
+		$base . 'promo.mp4' => geoq_lm_url( get_post_meta( $pid, '_lm_video', true ) ),
+		$base . 'full.mp4'  => geoq_lm_url( get_post_meta( $pid, '_lm_video', true ) ),
+		$base . 'logo.png'  => $photo ? $photo : geoq_lm_url( get_post_meta( $pid, '_lm_photo', true ) ),
+	);
+	header( 'Content-Type: text/html; charset=utf-8' );
+	echo str_replace( array_keys( $swap ), array_values( $swap ), $html );
+	exit;
+}, 1 );
+
+function geoq_lm_render_edit( $pid, $code ) {
+	header( 'Content-Type: text/html; charset=utf-8' );
+	$ok    = hash_equals( (string) get_post_meta( $pid, '_lm_token', true ), isset( $_GET['t'] ) ? sanitize_text_field( wp_unslash( $_GET['t'] ) ) : '' );
+	$edit  = (int) get_post_meta( $pid, '_lm_edit', true );
+	$api   = esc_url( rest_url( 'geoq/v1/livemug/' . $code . '/video' ) );
+	$live  = esc_url( home_url( '/live/' . $code . '/' ) );
+	$token = $ok ? esc_attr( sanitize_text_field( wp_unslash( $_GET['t'] ) ) ) : '';
+	echo '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Change your Live Mug video</title>';
+	echo '<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0B1530;color:#F5F0E9;font:16px/1.5 system-ui,sans-serif;padding:20px;box-sizing:border-box}.c{max-width:420px;width:100%;background:#15244C;border:1px solid rgba(224,197,143,.25);border-radius:20px;padding:24px;text-align:center}h1{font-size:24px;margin:0 0 8px}p{color:#AEBAD4}label{display:block;border:1.5px dashed rgba(224,197,143,.45);border-radius:14px;padding:18px;margin:16px 0;cursor:pointer}input{display:none}button,a.b{display:inline-block;min-height:48px;padding:12px 24px;border:0;border-radius:999px;background:#E0C58F;color:#112250;font-weight:700;font-size:16px;text-decoration:none;cursor:pointer}#s{min-height:22px;margin-top:12px;color:#E0C58F}</style></head><body><div class="c">';
+	if ( ! $ok ) {
+		echo '<h1>Link not valid</h1><p>Please open the link from your order email.</p>';
+	} elseif ( ! $edit ) {
+		echo '<h1>Editing not included</h1><p>Full editing was not added to this mug. Contact info@geoqartuli.com to unlock it.</p><a class="b" href="' . $live . '">Watch the current video</a>';
+	} else {
+		echo '<h1>Change your video</h1><p>Upload a new video (up to 60 seconds). The same mug will play it right away.</p><label><input type="file" id="v" accept="video/*"><span id="n">Choose a video</span></label><button id="go">Upload</button><div id="s"></div><p><a style="color:#E0C58F" href="' . $live . '">See the current video</a></p>';
+		echo '<script>const v=document.getElementById("v"),s=document.getElementById("s");v.onchange=()=>{document.getElementById("n").textContent=v.files[0]?v.files[0].name:"Choose a video"};document.getElementById("go").onclick=async()=>{if(!v.files[0]){s.textContent="Choose a video first.";return}const f=v.files[0];if(f.size>95*1048576){s.textContent="This video is too large. Please choose a shorter one.";return}s.textContent="Uploading…";const fd=new FormData();fd.append("video",f);fd.append("t","' . $token . '");try{const r=await fetch("' . $api . '",{method:"POST",body:fd});const j=await r.json();s.textContent=r.ok?"Done! Your mug now plays the new video.":(j.message||"Upload failed.")}catch(e){s.textContent="Upload failed. Please try again."}};</script>';
+	}
+	echo '</div></body></html>';
+}
+
+// Admin: columns and a review box with video, links, status and the print file.
+add_filter( 'manage_geoq_livemug_posts_columns', function ( $c ) {
+	return array( 'cb' => $c['cb'], 'title' => 'Live Mug', 'lm_photo' => 'Photo', 'lm_opts' => 'Options', 'lm_status' => 'Status', 'date' => 'Date' );
+} );
+add_action( 'manage_geoq_livemug_posts_custom_column', function ( $col, $pid ) {
+	if ( $col === 'lm_photo' ) {
+		echo wp_get_attachment_image( (int) get_post_meta( $pid, '_lm_photo', true ), array( 60, 60 ) );
+	}
+	if ( $col === 'lm_opts' ) {
+		$o = array( get_post_meta( $pid, '_lm_qty', true ) . ' mug(s)' );
+		if ( get_post_meta( $pid, '_lm_logo', true ) ) { $o[] = 'logo'; }
+		if ( get_post_meta( $pid, '_lm_site', true ) ) { $o[] = 'website'; }
+		if ( get_post_meta( $pid, '_lm_edit', true ) ) { $o[] = 'editing'; }
+		$g = get_post_meta( $pid, '_lm_gift', true );
+		if ( ! empty( $g['name'] ) ) { $o[] = 'gift'; }
+		echo esc_html( implode( ' · ', $o ) );
+	}
+	if ( $col === 'lm_status' ) {
+		echo esc_html( get_post_meta( $pid, '_lm_status', true ) );
+	}
+}, 10, 2 );
+
+add_action( 'add_meta_boxes', function () {
+	add_meta_box( 'geoq_lm_box', 'Live Mug', 'geoq_lm_box', 'geoq_livemug', 'normal', 'high' );
+} );
+
+function geoq_lm_box( $post ) {
+	$pid   = $post->ID;
+	$code  = get_post_meta( $pid, '_lm_code', true );
+	$video = geoq_lm_url( get_post_meta( $pid, '_lm_video', true ) );
+	$photo = geoq_lm_url( get_post_meta( $pid, '_lm_photo', true ) );
+	$logo  = geoq_lm_url( get_post_meta( $pid, '_lm_logo_id', true ) );
+	$site  = (string) get_post_meta( $pid, '_lm_site', true );
+	$gift  = get_post_meta( $pid, '_lm_gift', true );
+	$st    = get_post_meta( $pid, '_lm_status', true );
+	$live  = home_url( '/live/' . $code . '/' );
+	wp_nonce_field( 'geoq_lm_save', 'geoq_lm_nonce' );
+	echo '<div style="display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:24px;align-items:start">';
+	echo '<div><video src="' . esc_url( $video ) . '" controls playsinline style="width:100%;border-radius:12px;background:#000"></video></div><div>';
+	echo '<p><b>Code:</b> ' . esc_html( $code ) . ' &nbsp; <a href="' . esc_url( $live ) . '" target="_blank">Open AR page</a></p>';
+	echo '<p><b>Email:</b> ' . esc_html( get_post_meta( $pid, '_lm_email', true ) ) . ' &nbsp; <b>Mugs:</b> ' . esc_html( get_post_meta( $pid, '_lm_qty', true ) ) . ' &nbsp; <b>Language:</b> ' . esc_html( get_post_meta( $pid, '_lm_lang', true ) ) . '</p>';
+	echo '<p><b>Logo in QR:</b> ' . ( $logo ? 'yes' : 'no' ) . ' &nbsp; <b>Website:</b> ' . esc_html( $site ? $site : '—' ) . ' &nbsp; <b>Full editing:</b> ' . ( get_post_meta( $pid, '_lm_edit', true ) ? 'yes' : 'no' ) . '</p>';
+	if ( is_array( $gift ) && ! empty( $gift['name'] ) ) {
+		echo '<p><b>Gift to:</b> ' . esc_html( implode( ', ', array_filter( array( $gift['name'], $gift['addr'], $gift['addr2'], $gift['city'], $gift['state'], $gift['zip'], $gift['phone'] ) ) ) ) . '<br><b>Note:</b> ' . esc_html( isset( $gift['note'] ) ? $gift['note'] : '' ) . '</p>';
+	}
+	echo '<p><label><b>Status:</b> <select name="geoq_lm_status">';
+	foreach ( array( 'new' => 'New (not checked)', 'approved' => 'Video approved', 'ordered' => 'Ordered on CJ (email buyer)', 'blocked' => 'Blocked (breaks the rules)' ) as $k => $l ) {
+		echo '<option value="' . esc_attr( $k ) . '"' . selected( $st, $k, false ) . '>' . esc_html( $l ) . '</option>';
+	}
+	echo '</select></label></p>';
+	echo '<p><button type="button" class="button button-primary" id="geoq-lm-print">Download print file (PNG)</button> <span id="geoq-lm-pst"></span></p>';
+	echo '</div></div>';
+	$cfg = wp_json_encode( array( 'photo' => $photo, 'logo' => $logo, 'site' => $site, 'url' => $live, 'code' => $code, 'brand' => 'https://giorgisheri.github.io/geoqartuli-ar/logo.png' ) );
+	echo '<script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.9.2/lib/qr-code-styling.js"></script>';
+	echo '<script>(function(){const C=' . $cfg . ';const st=document.getElementById("geoq-lm-pst");const load=u=>new Promise((ok,no)=>{const i=new Image();i.crossOrigin="anonymous";i.onload=()=>ok(i);i.onerror=no;i.src=u;});';
+	echo 'document.getElementById("geoq-lm-print").onclick=async function(){st.textContent="Preparing…";try{const W=2550,H=1050,cv=document.createElement("canvas");cv.width=W;cv.height=H;const x=cv.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,W,H);';
+	echo 'const ph=await load(C.photo);const S=810,cx=1275,cy=H/2,s=Math.min(ph.naturalWidth,ph.naturalHeight);x.save();x.beginPath();if(x.roundRect){x.roundRect(cx-S/2,cy-S/2,S,S,44);}else{x.rect(cx-S/2,cy-S/2,S,S);}x.clip();x.drawImage(ph,(ph.naturalWidth-s)/2,(ph.naturalHeight-s)/2,s,s,cx-S/2,cy-S/2,S,S);x.restore();';
+	echo 'const q=new QRCodeStyling({width:760,height:760,type:"canvas",data:C.url,image:C.logo||C.brand,qrOptions:{errorCorrectionLevel:"H"},dotsOptions:{type:"rounded",color:"#112250"},cornersSquareOptions:{type:"extra-rounded",color:"#112250"},cornersDotOptions:{type:"dot",color:"#112250"},backgroundOptions:{color:"#ffffff"},imageOptions:{crossOrigin:"anonymous",margin:8,imageSize:0.32}});const qb=await q.getRawData("png");const qi=await load(URL.createObjectURL(qb));';
+	echo 'const QS=380,QC=2550-100-190,QY=490;x.drawImage(qi,QC-QS/2,QY,QS,QS);x.fillStyle="#112250";x.font="500 34px Inter,Arial,sans-serif";x.textAlign="center";x.fillText(C.site||"www.geoqartuli.com",QC,QY+QS+44);';
+	echo 'cv.toBlob(b=>{const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="live-mug-"+C.code+".png";document.body.appendChild(a);a.click();a.remove();st.textContent="Downloaded: 2550×1050 px, 300 DPI. Center of the file goes opposite the handle.";},"image/png");}catch(e){st.textContent="Could not build the file: "+e.message;}};})();</script>';
+}
+
+add_action( 'save_post_geoq_livemug', function ( $pid ) {
+	if ( empty( $_POST['geoq_lm_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['geoq_lm_nonce'] ) ), 'geoq_lm_save' ) || ! current_user_can( 'edit_post', $pid ) ) {
+		return;
+	}
+	$new = isset( $_POST['geoq_lm_status'] ) ? sanitize_key( wp_unslash( $_POST['geoq_lm_status'] ) ) : '';
+	if ( ! in_array( $new, array( 'new', 'approved', 'ordered', 'blocked' ), true ) ) {
+		return;
+	}
+	$old = get_post_meta( $pid, '_lm_status', true );
+	update_post_meta( $pid, '_lm_status', $new );
+	if ( $new === 'ordered' && $old !== 'ordered' ) {
+		$code = get_post_meta( $pid, '_lm_code', true );
+		$msg  = "Your GeoQartuli Live Mug is being printed and will ship in 3–5 days.\n\nWatch your video on the mug: " . home_url( '/live/' . $code . '/' ) . "\n";
+		if ( get_post_meta( $pid, '_lm_edit', true ) ) {
+			$msg .= "\nChange your video any time (keep this link private): " . home_url( '/live/' . $code . '/edit/?t=' . get_post_meta( $pid, '_lm_token', true ) ) . "\n";
+		}
+		$msg .= "\nThank you!\nGeoQartuli · www.geoqartuli.com";
+		wp_mail( get_post_meta( $pid, '_lm_email', true ), 'Your Live Mug is on its way', $msg );
+	}
+} );
