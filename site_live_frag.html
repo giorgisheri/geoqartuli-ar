@@ -143,12 +143,12 @@ const qr=new Image();qr.src='https://giorgisheri.github.io/geoqartuli-ar/qr_mug.
 let photo=new Image();photo.src='https://giorgisheri.github.io/geoqartuli-ar/logo.png?v=3';let isLogo=true;let view='front';
 let useLogo=false,useSite=false;
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
-function wrapPhoto(c,img,W,H,cx){const iw=img.naturalWidth,ih=img.naturalHeight;
-  const sm=document.createElement('canvas');sm.width=48;sm.height=Math.max(8,Math.round(48*H/W));const sx=sm.getContext('2d');
-  const k=Math.max(sm.width/iw,sm.height/ih)*1.15;sx.drawImage(img,(sm.width-iw*k)/2,(sm.height-ih*k)/2,iw*k,ih*k);
-  c.save();c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(sm,0,0,W,H);c.fillStyle='rgba(17,34,80,.25)';c.fillRect(0,0,W,H);c.restore();
+function edgeColors(img){const iw=img.naturalWidth,ih=img.naturalHeight,m=Math.min(iw,ih),c=document.createElement('canvas');c.width=c.height=32;const x=c.getContext('2d');
+  x.drawImage(img,(iw-m)/2,(ih-m)/2,m,m,0,0,32,32);const d=x.getImageData(0,0,32,32).data;const avg=c0=>{let r=0,g=0,b=0,n=0;for(let y=0;y<32;y++)for(let k=c0;k<c0+2;k++){const i=(y*32+k)*4;r+=d[i];g+=d[i+1];b+=d[i+2];n++;}return 'rgb('+[r,g,b].map(v=>Math.round(v/n)).join(',')+')';};return [avg(0),avg(30)];}
+function wrapPhoto(c,img,W,H,cx){const iw=img.naturalWidth,ih=img.naturalHeight;const [lc,rc]=edgeColors(img);
+  c.fillStyle=lc;c.fillRect(0,0,cx,H);c.fillStyle=rc;c.fillRect(cx,0,W-cx,H);
   const S=H,m=Math.min(iw,ih),t=document.createElement('canvas');t.width=t.height=S;const tx=t.getContext('2d');
-  tx.drawImage(img,(iw-m)/2,(ih-m)/2,m,m,0,0,S,S);const e=Math.round(S*.085);tx.globalCompositeOperation='destination-in';
+  tx.drawImage(img,(iw-m)/2,(ih-m)/2,m,m,0,0,S,S);const e=Math.round(S*.057);tx.globalCompositeOperation='destination-in';
   const g=tx.createLinearGradient(0,0,S,0);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(e/S,'#000');g.addColorStop(1-e/S,'#000');g.addColorStop(1,'rgba(0,0,0,0)');
   tx.fillStyle=g;tx.fillRect(0,0,S,S);c.drawImage(t,cx-S/2,0);}
 function drawPrint(){
