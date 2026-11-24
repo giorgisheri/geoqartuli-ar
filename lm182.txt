@@ -270,6 +270,11 @@ add_action( 'template_redirect', function () {
 		geoq_lm_render_edit( $pid, $code );
 		exit;
 	}
+	$redir = (string) get_post_meta( $pid, '_lm_redirect', true );
+	if ( $redir ) {
+		wp_redirect( $redir, 302 );
+		exit;
+	}
 	$html = get_post_field( 'post_content', GEOQ_LM_AR_PAGE, 'raw' );
 	$base = 'https://giorgisheri.github.io/geoqartuli-ar/';
 	$photo = wp_get_attachment_image_url( (int) get_post_meta( $pid, '_lm_photo', true ), 'medium' );
@@ -285,22 +290,123 @@ add_action( 'template_redirect', function () {
 	exit;
 }, 1 );
 
+function geoq_lm_t( $lang ) {
+	$all = array(
+		'en' => array(
+			'title' => 'Change your Live Mug', 'bad' => 'Link not valid', 'bad_p' => 'Please open the link from your order email.',
+			'no' => 'Editing not included', 'no_p' => 'Full editing was not added to this mug. Write to info@geoqartuli.com to unlock it.',
+			'watch' => 'Watch the current video', 'h_vid' => 'New video', 'p_vid' => 'Up to 60 seconds. The same mug plays it right away.',
+			'choose' => 'Choose a video', 'up' => 'Upload video', 'first' => 'Choose a video first.', 'big' => 'This video is too large. Please choose a shorter one.',
+			'wait' => 'Uploading…', 'done' => 'Done! Your mug now plays the new video.', 'fail' => 'Upload failed. Please try again.',
+			'h_link' => 'Where the QR leads', 'p_link' => 'Leave it on the video, or send people to your website.', 'o_vid' => 'The video on the mug', 'o_url' => 'My website',
+			'save' => 'Save', 'saved' => 'Saved.', 'badurl' => 'Please enter a full web address, for example https://mybusiness.com',
+			'm_sub' => 'Your Live Mug is on its way', 'm_body' => "Your GeoQartuli Live Mug is being printed and will ship in 3–5 days.\n\nWatch your video on the mug: %s\n",
+			'm_edit' => "\nChange your video any time (keep this link private): %s\n", 'm_end' => "\nThank you!\nGeoQartuli · www.geoqartuli.com",
+		),
+		'ka' => array(
+			'title' => 'შენი Live Mug-ის შეცვლა', 'bad' => 'ბმული არასწორია', 'bad_p' => 'გახსენი ბმული შეკვეთის წერილიდან.',
+			'no' => 'რედაქტირება არ არის ჩართული', 'no_p' => 'ამ ჭიქაზე სრული რედაქტირება არ შეგიძენია. მოგვწერე info@geoqartuli.com-ზე და ჩაგირთავთ.',
+			'watch' => 'ახლანდელი ვიდეოს ნახვა', 'h_vid' => 'ახალი ვიდეო', 'p_vid' => '60 წამამდე. იგივე ჭიქა მაშინვე ახალ ვიდეოს აჩვენებს.',
+			'choose' => 'აირჩიე ვიდეო', 'up' => 'ვიდეოს ატვირთვა', 'first' => 'ჯერ აირჩიე ვიდეო.', 'big' => 'ვიდეო ძალიან დიდია. აირჩიე უფრო მოკლე.',
+			'wait' => 'იტვირთება…', 'done' => 'მზადაა! ჭიქა ახლა ახალ ვიდეოს აჩვენებს.', 'fail' => 'ატვირთვა ვერ მოხერხდა. სცადე თავიდან.',
+			'h_link' => 'სად მიდის QR', 'p_link' => 'დატოვე ვიდეოზე ან გადაიყვანე ხალხი შენს საიტზე.', 'o_vid' => 'ვიდეო ჭიქაზე', 'o_url' => 'ჩემი საიტი',
+			'save' => 'შენახვა', 'saved' => 'შენახულია.', 'badurl' => 'ჩაწერე სრული მისამართი, მაგალითად https://mybusiness.com',
+			'm_sub' => 'შენი Live Mug გზაშია', 'm_body' => "შენი GeoQartuli Live Mug იბეჭდება და 3–5 დღეში გამოიგზავნება.\n\nნახე შენი ვიდეო ჭიქაზე: %s\n",
+			'm_edit' => "\nვიდეოს შეცვლა ნებისმიერ დროს (ეს ბმული არავის გაუზიარო): %s\n", 'm_end' => "\nგმადლობთ!\nGeoQartuli · www.geoqartuli.com",
+		),
+		'ru' => array(
+			'title' => 'Изменить Live Mug', 'bad' => 'Ссылка недействительна', 'bad_p' => 'Откройте ссылку из письма о заказе.',
+			'no' => 'Редактирование не подключено', 'no_p' => 'Для этой кружки не покупалось полное редактирование. Напишите на info@geoqartuli.com, и мы его включим.',
+			'watch' => 'Смотреть текущее видео', 'h_vid' => 'Новое видео', 'p_vid' => 'До 60 секунд. Та же кружка сразу покажет новое видео.',
+			'choose' => 'Выберите видео', 'up' => 'Загрузить видео', 'first' => 'Сначала выберите видео.', 'big' => 'Видео слишком большое. Выберите покороче.',
+			'wait' => 'Загрузка…', 'done' => 'Готово! Кружка теперь показывает новое видео.', 'fail' => 'Не удалось загрузить. Попробуйте ещё раз.',
+			'h_link' => 'Куда ведёт QR', 'p_link' => 'Оставьте видео или ведите людей на свой сайт.', 'o_vid' => 'Видео на кружке', 'o_url' => 'Мой сайт',
+			'save' => 'Сохранить', 'saved' => 'Сохранено.', 'badurl' => 'Введите полный адрес, например https://mybusiness.com',
+			'm_sub' => 'Ваша Live Mug уже в пути', 'm_body' => "Ваша кружка GeoQartuli Live Mug печатается и будет отправлена за 3–5 дней.\n\nВаше видео на кружке: %s\n",
+			'm_edit' => "\nМеняйте видео в любое время (не делитесь этой ссылкой): %s\n", 'm_end' => "\nСпасибо!\nGeoQartuli · www.geoqartuli.com",
+		),
+		'es' => array(
+			'title' => 'Cambia tu Live Mug', 'bad' => 'Enlace no válido', 'bad_p' => 'Abre el enlace del correo de tu pedido.',
+			'no' => 'Edición no incluida', 'no_p' => 'Esta taza no tiene edición completa. Escríbenos a info@geoqartuli.com para activarla.',
+			'watch' => 'Ver el video actual', 'h_vid' => 'Nuevo video', 'p_vid' => 'Hasta 60 segundos. La misma taza lo muestra al instante.',
+			'choose' => 'Elige un video', 'up' => 'Subir video', 'first' => 'Primero elige un video.', 'big' => 'El video es demasiado grande. Elige uno más corto.',
+			'wait' => 'Subiendo…', 'done' => '¡Listo! Tu taza ya muestra el nuevo video.', 'fail' => 'No se pudo subir. Inténtalo de nuevo.',
+			'h_link' => 'Adónde lleva el QR', 'p_link' => 'Déjalo en el video o lleva a la gente a tu sitio web.', 'o_vid' => 'El video de la taza', 'o_url' => 'Mi sitio web',
+			'save' => 'Guardar', 'saved' => 'Guardado.', 'badurl' => 'Escribe la dirección completa, por ejemplo https://mybusiness.com',
+			'm_sub' => 'Tu Live Mug está en camino', 'm_body' => "Tu GeoQartuli Live Mug se está imprimiendo y se enviará en 3–5 días.\n\nMira tu video en la taza: %s\n",
+			'm_edit' => "\nCambia tu video cuando quieras (no compartas este enlace): %s\n", 'm_end' => "\n¡Gracias!\nGeoQartuli · www.geoqartuli.com",
+		),
+	);
+	return isset( $all[ $lang ] ) ? $all[ $lang ] : $all['en'];
+}
+
+function geoq_lm_token_ok( $pid, $t ) {
+	return hash_equals( (string) get_post_meta( $pid, '_lm_token', true ), (string) $t );
+}
+
+add_action( 'rest_api_init', function () {
+	register_rest_route( 'geoq/v1', '/livemug/(?P<code>[a-z0-9]{8})/link', array(
+		'methods'             => 'POST',
+		'permission_callback' => '__return_true',
+		'callback'            => function ( WP_REST_Request $r ) {
+			$pid = geoq_lm_find( (string) $r['code'] );
+			if ( ! $pid || ! geoq_lm_token_ok( $pid, $r->get_param( 't' ) ) ) {
+				return new WP_Error( 'denied', 'This link is not valid.', array( 'status' => 403 ) );
+			}
+			if ( ! get_post_meta( $pid, '_lm_edit', true ) || ! ( get_post_meta( $pid, '_lm_logo', true ) || get_post_meta( $pid, '_lm_site', true ) ) ) {
+				return new WP_Error( 'locked', 'Not available for this mug.', array( 'status' => 403 ) );
+			}
+			$url = trim( (string) $r->get_param( 'url' ) );
+			if ( $url === '' ) {
+				delete_post_meta( $pid, '_lm_redirect' );
+				return array( 'ok' => true );
+			}
+			$url = esc_url_raw( $url, array( 'https', 'http' ) );
+			if ( ! $url || ! wp_http_validate_url( $url ) ) {
+				return new WP_Error( 'url', 'Bad address.', array( 'status' => 400 ) );
+			}
+			update_post_meta( $pid, '_lm_redirect', $url );
+			wp_mail( get_option( 'admin_email' ), 'Live Mug QR link changed ' . (string) $r['code'], 'New QR destination: ' . $url . "\n" . admin_url( 'post.php?post=' . $pid . '&action=edit' ) );
+			return array( 'ok' => true );
+		},
+	) );
+} );
+
 function geoq_lm_render_edit( $pid, $code ) {
 	header( 'Content-Type: text/html; charset=utf-8' );
-	$ok    = hash_equals( (string) get_post_meta( $pid, '_lm_token', true ), isset( $_GET['t'] ) ? sanitize_text_field( wp_unslash( $_GET['t'] ) ) : '' );
-	$edit  = (int) get_post_meta( $pid, '_lm_edit', true );
-	$api   = esc_url( rest_url( 'geoq/v1/livemug/' . $code . '/video' ) );
-	$live  = esc_url( home_url( '/live/' . $code . '/' ) );
-	$token = $ok ? esc_attr( sanitize_text_field( wp_unslash( $_GET['t'] ) ) ) : '';
-	echo '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Change your Live Mug video</title>';
-	echo '<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0B1530;color:#F5F0E9;font:16px/1.5 system-ui,sans-serif;padding:20px;box-sizing:border-box}.c{max-width:420px;width:100%;background:#15244C;border:1px solid rgba(224,197,143,.25);border-radius:20px;padding:24px;text-align:center}h1{font-size:24px;margin:0 0 8px}p{color:#AEBAD4}label{display:block;border:1.5px dashed rgba(224,197,143,.45);border-radius:14px;padding:18px;margin:16px 0;cursor:pointer}input{display:none}button,a.b{display:inline-block;min-height:48px;padding:12px 24px;border:0;border-radius:999px;background:#E0C58F;color:#112250;font-weight:700;font-size:16px;text-decoration:none;cursor:pointer}#s{min-height:22px;margin-top:12px;color:#E0C58F}</style></head><body><div class="c">';
+	$lang = isset( $_GET['lang'] ) ? sanitize_key( wp_unslash( $_GET['lang'] ) ) : (string) get_post_meta( $pid, '_lm_lang', true );
+	$T    = geoq_lm_t( $lang );
+	$tok  = isset( $_GET['t'] ) ? sanitize_text_field( wp_unslash( $_GET['t'] ) ) : '';
+	$ok   = geoq_lm_token_ok( $pid, $tok );
+	$edit = (int) get_post_meta( $pid, '_lm_edit', true );
+	$biz  = get_post_meta( $pid, '_lm_logo', true ) || get_post_meta( $pid, '_lm_site', true );
+	$live = home_url( '/live/' . $code . '/' );
+	$red  = (string) get_post_meta( $pid, '_lm_redirect', true );
+	$e    = function ( $k ) use ( $T ) { return esc_html( $T[ $k ] ); };
+	echo '<!DOCTYPE html><html lang="' . esc_attr( $lang ? $lang : 'en' ) . '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>' . $e( 'title' ) . '</title>';
+	echo '<style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(90% 70% at 70% 20%,#1E3A82,#112250 45%,#0B1530);color:#F5F0E9;font:16px/1.5 Inter,system-ui,sans-serif;padding:20px}.c{max-width:440px;width:100%;background:rgba(21,36,76,.92);border:1px solid rgba(224,197,143,.28);border-radius:22px;padding:26px;box-shadow:0 30px 80px rgba(0,0,0,.35)}h1{font-size:24px;margin:0 0 6px}h2{font-size:17px;margin:22px 0 4px;color:#E0C58F}p{color:#AEBAD4;margin:0 0 10px}label.d{display:block;border:1.5px dashed rgba(224,197,143,.45);border-radius:14px;padding:16px;margin:10px 0;cursor:pointer;text-align:center}input[type=file]{display:none}button,a.b{display:inline-block;min-height:46px;padding:11px 22px;border:0;border-radius:999px;background:#E0C58F;color:#112250;font-weight:700;font-size:15px;text-decoration:none;cursor:pointer}.s{min-height:22px;margin-top:10px;color:#E0C58F;font-size:14px}.r{display:flex;gap:16px;margin:8px 0}.r label{display:flex;gap:6px;align-items:center}input[type=url]{width:100%;min-height:44px;border-radius:12px;border:1px solid rgba(224,197,143,.3);background:#0F1C40;color:#F5F0E9;padding:10px 12px;font-size:15px;margin:6px 0 10px}a.l{color:#E0C58F}</style></head><body><div class="c">';
 	if ( ! $ok ) {
-		echo '<h1>Link not valid</h1><p>Please open the link from your order email.</p>';
+		echo '<h1>' . $e( 'bad' ) . '</h1><p>' . $e( 'bad_p' ) . '</p>';
 	} elseif ( ! $edit ) {
-		echo '<h1>Editing not included</h1><p>Full editing was not added to this mug. Contact info@geoqartuli.com to unlock it.</p><a class="b" href="' . $live . '">Watch the current video</a>';
+		echo '<h1>' . $e( 'no' ) . '</h1><p>' . $e( 'no_p' ) . '</p><a class="b" href="' . esc_url( $live ) . '">' . $e( 'watch' ) . '</a>';
 	} else {
-		echo '<h1>Change your video</h1><p>Upload a new video (up to 60 seconds). The same mug will play it right away.</p><label><input type="file" id="v" accept="video/*"><span id="n">Choose a video</span></label><button id="go">Upload</button><div id="s"></div><p><a style="color:#E0C58F" href="' . $live . '">See the current video</a></p>';
-		echo '<script>const v=document.getElementById("v"),s=document.getElementById("s");v.onchange=()=>{document.getElementById("n").textContent=v.files[0]?v.files[0].name:"Choose a video"};document.getElementById("go").onclick=async()=>{if(!v.files[0]){s.textContent="Choose a video first.";return}const f=v.files[0];if(f.size>60*1048576){s.textContent="This video is too large. Please choose a shorter one.";return}s.textContent="Uploading…";const fd=new FormData();fd.append("video",f);fd.append("t","' . $token . '");try{const r=await fetch("' . $api . '",{method:"POST",body:fd});const j=await r.json();s.textContent=r.ok?"Done! Your mug now plays the new video.":(j.message||"Upload failed.")}catch(e){s.textContent="Upload failed. Please try again."}};</script>';
+		echo '<h1>' . $e( 'title' ) . '</h1><p><a class="l" href="' . esc_url( $live ) . '" target="_blank" rel="noopener">' . $e( 'watch' ) . '</a></p>';
+		echo '<h2>' . $e( 'h_vid' ) . '</h2><p>' . $e( 'p_vid' ) . '</p><label class="d"><input type="file" id="v" accept="video/*"><span id="n">' . $e( 'choose' ) . '</span></label><button id="go">' . $e( 'up' ) . '</button><div class="s" id="s"></div>';
+		if ( $biz ) {
+			echo '<h2>' . $e( 'h_link' ) . '</h2><p>' . $e( 'p_link' ) . '</p><div class="r"><label><input type="radio" name="d" value="v"' . ( $red ? '' : ' checked' ) . '>' . $e( 'o_vid' ) . '</label><label><input type="radio" name="d" value="u"' . ( $red ? ' checked' : '' ) . '>' . $e( 'o_url' ) . '</label></div>';
+			echo '<input type="url" id="u" placeholder="https://" value="' . esc_attr( $red ) . '"' . ( $red ? '' : ' style="display:none"' ) . '><button id="sv">' . $e( 'save' ) . '</button><div class="s" id="s2"></div>';
+		}
+		$cfg = wp_json_encode( array(
+			'v'   => rest_url( 'geoq/v1/livemug/' . $code . '/video' ),
+			'l'   => rest_url( 'geoq/v1/livemug/' . $code . '/link' ),
+			't'   => $tok,
+			'tx'  => $T,
+		) );
+		echo '<script>(function(){const C=' . $cfg . ',$=i=>document.getElementById(i),T=C.tx;';
+		echo 'const v=$("v");v.onchange=()=>{$("n").textContent=v.files[0]?v.files[0].name:T.choose};';
+		echo '$("go").onclick=()=>{const s=$("s");if(!v.files[0]){s.textContent=T.first;return}const f=v.files[0];if(f.size>58*1048576){s.textContent=T.big;return}const fd=new FormData();fd.append("video",f);fd.append("t",C.t);const x=new XMLHttpRequest();x.open("POST",C.v);x.upload.onprogress=e=>{if(e.lengthComputable)s.textContent=T.wait+" "+Math.round(e.loaded/e.total*100)+"%"};x.onload=()=>{let j={};try{j=JSON.parse(x.responseText)}catch(_){}s.textContent=x.status<300?T.done:(j.message||T.fail)};x.onerror=()=>{s.textContent=T.fail};s.textContent=T.wait;x.send(fd);};';
+		echo 'const sv=$("sv");if(sv){const u=$("u");document.querySelectorAll("input[name=d]").forEach(r=>r.onchange=()=>{u.style.display=r.value==="u"&&r.checked?"block":(document.querySelector("input[name=d]:checked").value==="u"?"block":"none")});';
+		echo 'sv.onclick=async()=>{const s2=$("s2"),mode=document.querySelector("input[name=d]:checked").value;let url=mode==="u"?u.value.trim():"";if(mode==="u"&&!/^https?:\/\/[^\s.]+\.[^\s]+$/i.test(url)){s2.textContent=T.badurl;return}const fd=new FormData();fd.append("t",C.t);fd.append("url",url);try{const r=await fetch(C.l,{method:"POST",body:fd});s2.textContent=r.ok?T.saved:T.badurl}catch(_){s2.textContent=T.fail}}}})();</script>';
 	}
 	echo '</div></body></html>';
 }
@@ -350,6 +456,13 @@ function geoq_lm_box( $post ) {
 	if ( is_array( $gift ) && ! empty( $gift['name'] ) ) {
 		echo '<p><b>Gift to:</b> ' . esc_html( implode( ', ', array_filter( array( $gift['name'], $gift['addr'], $gift['addr2'], $gift['city'], $gift['state'], $gift['zip'], $gift['phone'] ) ) ) ) . '<br><b>Note:</b> ' . esc_html( isset( $gift['note'] ) ? $gift['note'] : '' ) . '</p>';
 	}
+	$red = (string) get_post_meta( $pid, '_lm_redirect', true );
+	if ( $red ) {
+		echo '<p><b>QR now leads to:</b> ' . esc_html( $red ) . '</p>';
+	}
+	if ( get_post_meta( $pid, '_lm_edit', true ) ) {
+		echo '<p><a href="' . esc_url( home_url( '/live/' . $code . '/edit/?t=' . get_post_meta( $pid, '_lm_token', true ) ) ) . '" target="_blank">Buyer edit page</a></p>';
+	}
 	echo '<p><label><b>Status:</b> <select name="geoq_lm_status">';
 	foreach ( array( 'new' => 'New (not checked)', 'approved' => 'Video approved', 'ordered' => 'Ordered on CJ (email buyer)', 'blocked' => 'Blocked (breaks the rules)' ) as $k => $l ) {
 		echo '<option value="' . esc_attr( $k ) . '"' . selected( $st, $k, false ) . '>' . esc_html( $l ) . '</option>';
@@ -379,11 +492,13 @@ add_action( 'save_post_geoq_livemug', function ( $pid ) {
 	update_post_meta( $pid, '_lm_status', $new );
 	if ( $new === 'ordered' && $old !== 'ordered' ) {
 		$code = get_post_meta( $pid, '_lm_code', true );
-		$msg  = "Your GeoQartuli Live Mug is being printed and will ship in 3–5 days.\n\nWatch your video on the mug: " . home_url( '/live/' . $code . '/' ) . "\n";
+		$lang = (string) get_post_meta( $pid, '_lm_lang', true );
+		$T    = geoq_lm_t( $lang );
+		$msg  = sprintf( $T['m_body'], home_url( '/live/' . $code . '/' ) );
 		if ( get_post_meta( $pid, '_lm_edit', true ) ) {
-			$msg .= "\nChange your video any time (keep this link private): " . home_url( '/live/' . $code . '/edit/?t=' . get_post_meta( $pid, '_lm_token', true ) ) . "\n";
+			$msg .= sprintf( $T['m_edit'], home_url( '/live/' . $code . '/edit/?t=' . get_post_meta( $pid, '_lm_token', true ) ) );
 		}
-		$msg .= "\nThank you!\nGeoQartuli · www.geoqartuli.com";
-		wp_mail( get_post_meta( $pid, '_lm_email', true ), 'Your Live Mug is on its way', $msg );
+		$msg .= $T['m_end'];
+		wp_mail( get_post_meta( $pid, '_lm_email', true ), $T['m_sub'], $msg );
 	}
 } );
