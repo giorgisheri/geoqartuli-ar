@@ -266,6 +266,7 @@ function geoq_lm_create( WP_REST_Request $r ) {
 		'_lm_lang'    => sanitize_key( (string) $r->get_param( 'lang' ) ),
 		'_lm_gift'    => is_array( $gift ) ? array_map( 'sanitize_text_field', $gift ) : array(),
 		'_lm_status'  => 'new',
+		'_lm_shape'   => ( $r->get_param( 'shape' ) === 'circle' ) ? 'circle' : 'square',
 		'_lm_photo'   => $ids['photo'],
 		'_lm_video'   => $ids['video'],
 		'_lm_mind'    => $ids['mind'],
@@ -344,7 +345,8 @@ add_action( 'template_redirect', function () {
 		$base . 'full.mp4'  => geoq_lm_local( get_post_meta( $pid, '_lm_video', true ) ),
 		$base . 'logo.png'  => $photo ? $photo : geoq_lm_url( get_post_meta( $pid, '_lm_photo', true ) ),
 	);
-	$swap['</head>'] = '<script>window.GQ={shape:"square",target:"photo"};</script></head>';
+	$shape = get_post_meta( $pid, '_lm_shape', true ) === 'circle' ? 'circle' : 'square';
+	$swap['</head>'] = '<script>window.GQ={shape:"' . $shape . '",target:"photo"};</script></head>';
 	header( 'Content-Type: text/html; charset=utf-8' );
 	echo str_replace( array_keys( $swap ), array_values( $swap ), $html );
 	exit;
@@ -523,6 +525,8 @@ function geoq_lm_box( $post ) {
 	if ( get_post_meta( $pid, '_lm_edit', true ) ) {
 		echo '<p><a href="' . esc_url( home_url( '/live/' . $code . '/edit/?t=' . get_post_meta( $pid, '_lm_token', true ) ) ) . '" target="_blank">Buyer edit page</a></p>';
 	}
+	$shp = get_post_meta( $pid, '_lm_shape', true ) === 'circle' ? 'circle' : 'square';
+	echo '<p><label><b>Video shape on the mug:</b> <select name="geoq_lm_shape"><option value="square"' . selected( $shp, 'square', false ) . '>Square (photo)</option><option value="circle"' . selected( $shp, 'circle', false ) . '>Round (round logo)</option></select></label></p>';
 	echo '<p><label><b>Status:</b> <select name="geoq_lm_status">';
 	foreach ( array( 'new' => 'New (not checked)', 'approved' => 'Video approved', 'ordered' => 'Ordered on CJ (email buyer)', 'blocked' => 'Blocked (breaks the rules)' ) as $k => $l ) {
 		echo '<option value="' . esc_attr( $k ) . '"' . selected( $st, $k, false ) . '>' . esc_html( $l ) . '</option>';
@@ -543,6 +547,9 @@ function geoq_lm_box( $post ) {
 add_action( 'save_post_geoq_livemug', function ( $pid ) {
 	if ( empty( $_POST['geoq_lm_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['geoq_lm_nonce'] ) ), 'geoq_lm_save' ) || ! current_user_can( 'edit_post', $pid ) ) {
 		return;
+	}
+	if ( isset( $_POST['geoq_lm_shape'] ) ) {
+		update_post_meta( $pid, '_lm_shape', sanitize_key( wp_unslash( $_POST['geoq_lm_shape'] ) ) === 'circle' ? 'circle' : 'square' );
 	}
 	$new = isset( $_POST['geoq_lm_status'] ) ? sanitize_key( wp_unslash( $_POST['geoq_lm_status'] ) ) : '';
 	if ( ! in_array( $new, array( 'new', 'approved', 'ordered', 'blocked' ), true ) ) {

@@ -237,6 +237,9 @@ function syncForm(){useLogo=$('bizLogo').checked;useSite=$('bizSite').checked;$(
 syncForm();window.addEventListener('pageshow',syncForm);
 const VARIANTS={"1": "68092460892227", "1E": "68092460924995", "1S": "68092460957763", "1SE": "68092460990531", "1L": "68092461023299", "1LE": "68092461056067", "1LS": "68092461088835", "1LSE": "68092461121603", "2": "68092461154371", "2E": "68092461187139", "2S": "68092461219907", "2SE": "68092461252675", "2L": "68092461285443", "2LE": "68092461318211", "2LS": "68092461350979", "2LSE": "68092461383747"};const SHOP='https://shop.geoqartuli.com';const API='https://geoqartuli.com/wp-json/geoq/v1/livemug';const LAUNCHED=false;
 function prog(p,txt){$('prog').classList.add('on');$('pfill').style.width=Math.round(p*100)+'%';if(txt)$('ptext').textContent=txt;}
+function photoShape(){try{const c=squarePhoto(64),x=c.getContext('2d'),d=x.getImageData(0,0,64,64).data;const px=(X,Y)=>{const i=(Y*64+X)*4;return [d[i],d[i+1],d[i+2]];};
+  const corner=[[1,1],[62,1],[1,62],[62,62],[4,2],[59,2],[2,59],[61,61]].map(([X,Y])=>px(X,Y));const light=corner.every(c=>c[0]>232&&c[1]>232&&c[2]>232);
+  const mid=[[32,32],[20,32],[44,32],[32,20],[32,44]].map(([X,Y])=>px(X,Y)).some(c=>c[0]<215||c[1]<215||c[2]<215);return light&&mid?'circle':'square';}catch(e){return 'square';}}
 function squarePhoto(size){const c=document.createElement('canvas');c.width=c.height=size;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,size,size);const iw=photo.naturalWidth,ih=photo.naturalHeight,m=Math.min(iw,ih);x.drawImage(photo,(iw-m)/2,(ih-m)/2,m,m,0,0,size,size);return c;}
 const blobOf=(c,type,q)=>new Promise(r=>c.toBlob(r,type,q));
 async function compressVideo(file,onp){
@@ -287,7 +290,7 @@ async function placeOrder(email){
     fd.append('photo',await blobOf(squarePhoto(Math.min(2400,Math.max(1000,Math.min(photo.naturalWidth,photo.naturalHeight)))),'image/jpeg',.95),'photo.jpg');
     fd.append('video',video,'video.mp4');fd.append('mind',mind,'target.mind');
     if(useLogo&&blogo){const c=document.createElement('canvas');const s=Math.min(1000,Math.max(blogo.naturalWidth,blogo.naturalHeight));c.width=c.height=s;const x=c.getContext('2d');const k=s/Math.max(blogo.naturalWidth,blogo.naturalHeight);x.drawImage(blogo,(s-blogo.naturalWidth*k)/2,(s-blogo.naturalHeight*k)/2,blogo.naturalWidth*k,blogo.naturalHeight*k);fd.append('logo',await blobOf(c,'image/png'),'brand-logo.png');}
-    fd.append('email',email);fd.append('agree','1');fd.append('lang',LANG);
+    fd.append('email',email);fd.append('agree','1');fd.append('lang',LANG);fd.append('shape',photoShape());
     fd.append('qty',document.querySelector('input[name=q]:checked').value);fd.append('edit',$('edit').checked?'1':'0');
     fd.append('site',useSite?$('bsite').value.trim():'');
     if($('gift').checked)fd.append('gift',JSON.stringify({name:$('gName').value.trim(),phone:$('gPhone').value.trim(),addr:$('gAddr').value.trim(),addr2:$('gAddr2').value.trim(),city:$('gCity').value.trim(),state:$('gState').value.trim().toUpperCase(),zip:$('gZip').value.trim(),note:$('gNote').value.trim()}));
