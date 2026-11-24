@@ -75,46 +75,5 @@ async function startAR(){
 $('go').onclick=startAR;
 startAR();
 </script>
-</head>
-<body>
-<div id="ar"></div>
-<div id="start">
-  <img src="logo.png" alt="GeoQartuli">
-  <h1>Bring the logo to life</h1>
-  <p>Tap start, allow the camera, then point it at the GeoQartuli logo on your mug.</p>
-  <button id="go" class="gold">▶ Start</button>
-  <button id="watch" class="ghost">Just watch the video</button>
-  <p id="status" style="font-size:13px"></p>
-</div>
-<div id="hint"><span id="hintText">Point your camera at the logo</span><a class="btn gold" href="https://geoqartuli.com">Get the GeoQartuli app</a></div>
-<div id="fallback"><video id="fv" src="full.mp4" playsinline controls></video><button class="ghost" id="closeF">Close</button></div>
-<video id="vid" src="promo.mp4" playsinline webkit-playsinline loop preload="auto" style="position:fixed;top:0;left:0;width:2px;height:2px;opacity:0;pointer-events:none"></video>
-<script type="module">
-import * as THREE from 'three';
-import { MindARThree } from 'mindar-image-three';
-const $=id=>document.getElementById(id);
-const vid=$('vid');
-$('watch').onclick=()=>{$('fallback').style.display='flex';$('fv').play().catch(()=>{});};
-$('closeF').onclick=()=>{$('fv').pause();$('fallback').style.display='none';};
-$('go').onclick=async()=>{
-  $('go').disabled=true;$('status').textContent='Starting camera…';
-  try{await vid.play();vid.pause();vid.currentTime=0;}catch(e){}
-  try{
-    const mind=new MindARThree({container:$('ar'),imageTargetSrc:'logo.mind',uiLoading:'no',uiScanning:'no',uiError:'no',filterMinCF:0.0001,filterBeta:0.001});
-    const {renderer,scene,camera}=mind;
-    const tex=new THREE.VideoTexture(vid);tex.colorSpace=THREE.SRGBColorSpace;
-    const disc=new THREE.Mesh(new THREE.CircleGeometry(0.49,96),new THREE.MeshBasicMaterial({map:tex}));
-    const anchor=mind.addAnchor(0);anchor.group.add(disc);
-    anchor.onTargetFound=()=>{vid.play();$('hintText').textContent='Tap “Get the app” anytime';};
-    anchor.onTargetLost=()=>{vid.pause();$('hintText').textContent='Point your camera at the logo';};
-    await mind.start();
-    renderer.setAnimationLoop(()=>renderer.render(scene,camera));
-    $('start').style.display='none';$('hint').style.display='flex';
-  }catch(e){
-    $('go').disabled=false;
-    $('status').textContent='Camera could not start. Allow camera access, or tap “Just watch the video”.';
-  }
-};
-</script>
 </body>
 </html>
