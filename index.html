@@ -7,7 +7,7 @@
 <style>
 html,body{margin:0;height:100%;background:#112250;color:#fff;font:16px/1.5 -apple-system,system-ui,sans-serif;overflow:hidden}
 #ar{position:fixed;inset:0}
-#start{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center;background:#112250;z-index:10}
+#start{position:fixed;inset:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center;background:#112250;z-index:10}
 #start img{width:min(46vw,220px)}
 h1{margin:0;font-size:24px;font-weight:700}
 p{margin:0;color:#c9d2ea;max-width:320px}
@@ -28,9 +28,9 @@ button,.btn{appearance:none;border:0;border-radius:999px;padding:14px 26px;font:
 <div id="start">
   <img src="logo.png" alt="GeoQartuli">
   <h1>Bring the logo to life</h1>
-  <p id="status">Allow the camera, then point it at the GeoQartuli logo.</p>
+  <p id="status" style="font-size:20px;color:#E0C58F;font-weight:600">Tap anywhere to see the video</p>
   <button id="go" class="gold" style="display:none">▶ Try again</button>
-  <button id="watch" class="ghost">Just watch the video</button>
+  <button id="watch" class="ghost" style="position:absolute;bottom:calc(28px + env(safe-area-inset-bottom))">Just watch the video</button>
 </div>
 <div id="hint"><span id="hintText">Point your camera at the logo</span><a class="btn gold" href="https://geoqartuli.com">Get the GeoQartuli app</a></div>
 <button id="sound" class="gold" style="position:fixed;top:calc(16px + env(safe-area-inset-top));right:16px;z-index:6;display:none">🔊 Tap for sound</button>
@@ -42,7 +42,7 @@ import { MindARThree } from 'mindar-image-three';
 const $=id=>document.getElementById(id);
 const vid=$('vid');
 let mind=null,started=false;
-$('watch').onclick=()=>{$('fallback').style.display='flex';$('fv').play().catch(()=>{});};
+$('watch').onclick=e=>{e.stopPropagation();$('fallback').style.display='flex';$('fv').play().catch(()=>{});};
 $('closeF').onclick=()=>{$('fv').pause();$('fallback').style.display='none';};
 const unmute=()=>{vid.muted=false;$('sound').style.display='none';if(!vid.paused)vid.play().catch(()=>{});};
 $('sound').onclick=e=>{e.stopPropagation();unmute();};
@@ -69,11 +69,14 @@ async function startAR(){
     $('start').style.display='none';$('hint').style.display='flex';
   }catch(e){
     $('go').style.display='inline-block';
-    $('status').textContent='Camera is blocked. Tap “Try again” and choose Allow, or just watch the video.';
+    tapped=true;$('status').textContent='Camera is blocked. Tap “Try again” and choose Allow, or just watch the video.';
   }
 }
-$('go').onclick=startAR;
-startAR();
+let tapped=false;
+$('start').addEventListener('click',()=>{if(tapped)return;tapped=true;
+  vid.muted=false;vid.play().then(()=>{vid.pause();vid.currentTime=0;}).catch(()=>{});
+  startAR();});
+$('go').onclick=e=>{e.stopPropagation();startAR();};
 </script>
 </body>
 </html>
