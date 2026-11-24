@@ -235,12 +235,22 @@ function geoq_lm_create( WP_REST_Request $r ) {
 	foreach ( $files as $k => $rule ) {
 		$id = geoq_lm_save_file( $k, $pid, $rule[0], $rule[1], $code );
 		if ( is_wp_error( $id ) ) {
+			foreach ( $ids as $done_id ) {
+				if ( $done_id ) {
+					wp_delete_attachment( $done_id, true );
+				}
+			}
 			wp_delete_post( $pid, true );
 			return $id;
 		}
 		$ids[ $k ] = (int) $id;
 	}
 	if ( ! $ids['photo'] || ! $ids['video'] || ! $ids['mind'] ) {
+		foreach ( $ids as $done_id ) {
+			if ( $done_id ) {
+				wp_delete_attachment( $done_id, true );
+			}
+		}
 		wp_delete_post( $pid, true );
 		return new WP_Error( 'upload', 'Upload failed. Please try again.', array( 'status' => 500 ) );
 	}
