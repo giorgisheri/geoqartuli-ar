@@ -155,7 +155,7 @@ footer b{color:var(--gold);letter-spacing:.06em}
     <div class="kicker notranslate" translate="no" data-keep>GeoQartuli Live Mug</div>
     <h1>A mug that <em>plays</em> your video</h1>
     <p class="lead">Print a photo, add a video message. When they point their phone at the mug, the photo comes alive — with sound.</p>
-    <div class="price"><b class="notranslate" translate="no" data-keep>$34.99</b><span>Free shipping · gift box included</span></div>
+    <div class="price"><b class="notranslate" translate="no" data-keep>$29.99</b><span>Free shipping · gift box included</span></div>
     <div class="cta"><a class="btn btn-gold" href="#create">▶ Create your mug</a><span class="badge-live"><i></i>Live video</span></div>
     <div class="trust"><span>No app needed</span><span>Ships in 3–5 days</span><span>Made in the USA</span></div>
   </div>
@@ -204,8 +204,8 @@ footer b{color:var(--gold);letter-spacing:.06em}
       </div>
       <div class="card"><h3><span class="n">5</span>How many?</h3>
         <div class="opts">
-          <div class="opt"><input type="radio" name="q" id="q1" value="1" checked><label for="q1"><b>1 mug</b><span class="notranslate" translate="no" data-keep id="p1">$34.99</span><small>Gift box included</small></label></div>
-          <div class="opt"><input type="radio" name="q" id="q2" value="2"><label for="q2"><b>2 mugs <em class="notranslate" translate="no" data-keep>−$10</em></b><span class="notranslate" translate="no" data-keep id="p2">$59.99</span><small>One for each of you</small></label></div>
+          <div class="opt"><input type="radio" name="q" id="q1" value="1" checked><label for="q1"><b>1 mug</b><span class="notranslate" translate="no" data-keep id="p1">$29.99</span><small>Gift box included</small></label></div>
+          <div class="opt"><input type="radio" name="q" id="q2" value="2"><label for="q2"><b>2 mugs <em class="notranslate" translate="no" data-keep>−$5</em></b><span class="notranslate" translate="no" data-keep id="p2">$54.99</span><small>One for each of you</small></label></div>
         </div></div>
       <div class="card" id="c6"><h3><span class="n">6</span>Sending it as a gift?<span class="ok">✓ Added</span></h3>
         <label class="sw"><input type="checkbox" id="gift"><span class="tr"></span><span><b>Ship it straight to them</b><small>We send the mug to their address in a gift box, with no prices inside</small></span></label>
@@ -231,7 +231,7 @@ footer b{color:var(--gold);letter-spacing:.06em}
           <li>Music, movies or logos you don’t have the right to use</li></ul>
           <p>Every video is checked before the mug is printed. If it breaks these rules we cancel the order and refund it, and we can turn off a video at any time if it’s reported.</p></div>
       </div>
-      <div class="card"><label class="fld" style="margin-bottom:16px"><span>Your email</span><input type="email" id="email" autocomplete="email" inputmode="email" placeholder="you@example.com"><small class="hint">We send the link to your mug video here</small></label><div class="sum"><div class="tot" id="tot"><span id="totv" class="notranslate" translate="no" data-keep>$34.99</span><small>Free shipping in the USA</small></div><button class="btn btn-navy" id="buy">Add to cart</button></div>
+      <div class="card"><label class="fld" style="margin-bottom:16px"><span>Your email</span><input type="email" id="email" autocomplete="email" inputmode="email" placeholder="you@example.com"><small class="hint">We send the link to your mug video here</small></label><div class="sum"><div class="tot" id="tot"><span id="totv" class="notranslate" translate="no" data-keep>$29.99</span><small>Free shipping in the USA</small></div><button class="btn btn-navy" id="buy">Add to cart</button></div>
         <div class="prog" id="prog"><div class="pbar"><i id="pfill"></i></div><span id="ptext"></span></div><div class="err" id="e3"></div><div class="okbox" id="okbox"></div>
         <p class="note">Secure checkout · Apple Pay, cards and PayPal</p></div>
     </div>
@@ -353,8 +353,8 @@ $('video').addEventListener('change',e=>{const f=e.target.files[0];$('e2').style
   v.src=url;});
 function total(){const n=document.querySelector('input[name=q]:checked').value==='2'?2:1;
   const add=(useLogo?2.5:0)+(useSite?2.5:0),ed=$('edit').checked?9.99:0;const f=v=>'$'+v.toFixed(2);
-  $('p1').textContent=f(34.99+add+ed);$('p2').textContent=f(59.99+add*2+ed);
-  const t=(n===2?59.99:34.99)+add*n+ed;$('totv').textContent='$'+t.toFixed(2);}
+  $('p1').textContent=f(29.99+add+ed);$('p2').textContent=f(54.99+add*2+ed);
+  const t=(n===2?54.99:29.99)+add*n+ed;$('totv').textContent='$'+t.toFixed(2);}
 document.querySelectorAll('input[name=q]').forEach(r=>r.addEventListener('change',total));
 $('edit').addEventListener('change',total);
 function bizUI(){$('c4').classList.toggle('done',(useLogo&&!!blogo)||(useSite&&!!$('bsite').value.trim()));}
